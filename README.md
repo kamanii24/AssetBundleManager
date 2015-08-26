@@ -37,7 +37,7 @@ JiYongYun様のものを改変して組み込んでいます。 <https://github.
         else {
             int per = (int)(progress*100f);
             Debug.Log(per+"%");
-            Debug.LoG(fileIndex + "/" + bundleNames);
+            Debug.LoG(fileIndex + "/" + bundleNames.Length);
         }
     }));`
 
