@@ -36,7 +36,7 @@ public class AssetBundleManager : MonoBehaviour {
 	#region PUBLIC_DELEGATE
 
 	// アセットバンドルダウンロードプログレス更新用
-	public delegate void OnDownloadProgressUpdate(float progress, int fileIndex, bool isComplete);
+	public delegate void OnDownloadProgressUpdate(float progress, int fileIndex, bool isComplete, string error);
 	// アセットバンドルロード完了通知用
 	public delegate void OnLoadComplete(bool isSuccess, string error);
 	// 非同期アセット取得完了通知用
@@ -238,14 +238,17 @@ public class AssetBundleManager : MonoBehaviour {
 				// ダウンロードが完了するまでプログレスを更新する
 				while(!www.isDone) {
 					// 更新する
-					update(www.progress, fileIndex+1, false);
+					update(www.progress, fileIndex+1, false, www.error);
 					Debug.Log ("PROGRESS : "+www.progress);
 					yield return null;
 				}
 
 				// エラー処理
-				if (www.error != null)
+				if (www.error != null) {
+					// 完了通知
+					update (www.progress, fileIndex+1, false, www.error);
 					throw new Exception("WWW download had an error:" + www.error);
+				}
 
 				// wwwを解放する
 				www.Dispose ();
@@ -253,7 +256,7 @@ public class AssetBundleManager : MonoBehaviour {
 		} while(++fileIndex < assetBundleNames.Length); 
 
 		// 完了通知
-		update (1f, fileIndex, true);
+		update (1f, fileIndex, true, null);
 	}
 
 
