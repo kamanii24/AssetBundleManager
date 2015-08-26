@@ -31,9 +31,14 @@ JiYongYun様のものを改変して組み込んでいます。 <https://github.
     string[] bundleNames = { bundle_1, bundle_2, bundle_3 };`
     AssetBundleManager.Instance.DownloadAssetBundle (bundleNames, ((float progress, int fileIndex, bool isComplete) => {
         // 進捗処理
-        int per = (int)(progress*100f);
-        Debug.Log(per+"%");
-        Debug.LoG(fileIndex + "/" + bundleNames);
+        if (isComplete) {
+            Debug.Log("ダウンロード完了");
+        }
+        else {
+            int per = (int)(progress*100f);
+            Debug.Log(per+"%");
+            Debug.LoG(fileIndex + "/" + bundleNames);
+        }
     }));`
 
 <br>
