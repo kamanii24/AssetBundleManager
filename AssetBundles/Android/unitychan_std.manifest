@@ -1,0 +1,81 @@
+ManifestFileVersion: 0
+CRC: 3057979682
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 6dafa59c150272956f96c1211473f244
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 8c99c15162928876d5b8c48cafe1266e
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 23
+  Script: {instanceID: 0}
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 33
+  Script: {instanceID: 0}
+- Class: 43
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+- Class: 90
+  Script: {instanceID: 0}
+- Class: 91
+  Script: {instanceID: 0}
+- Class: 95
+  Script: {instanceID: 0}
+- Class: 114
+  Script: {fileID: 11500000, guid: fcb73b690c023734fb267911061a15c6, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 37b7c58dc2d739b4c90fe59f6875debf, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 6514ba86f976d724ab63844a6015b2aa, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: a38e39ada51aaba4db6d352ce218849e, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 0a6149a22cf8a47a192a60b00b3becb3, type: 3}
+- Class: 115
+  Script: {instanceID: 0}
+- Class: 137
+  Script: {instanceID: 0}
+Assets:
+- Assets/UnityChanStd/Models/Materials/skin1.mat
+- Assets/UnityChanStd/Models/Materials/body.mat
+- Assets/UnityChanStd/Models/Texture/ENV2.tga
+- Assets/UnityChanStd/Models/Texture/FO_RIM1.tga
+- Assets/UnityChanStd/Models/Materials/eyeline.mat
+- Assets/UnityChanStd/Models/Texture/hair_01.tga
+- Assets/UnityChanStd/Models/Texture/cheek_00.tga
+- Assets/UnityChanStd/Models/Texture/eyeline_00.tga
+- Assets/UnityChanStd/Models/Texture/FO_CLOTH1.tga
+- Assets/UnityChanStd/Models/unitychan.fbx
+- Assets/UnityChanStd/Models/Materials/mat_cheek.mat
+- Assets/UnityChanStd/Models/Texture/face_00.tga
+- Assets/UnityChanStd/Models/Texture/eye_iris_L_00.tga
+- Assets/UnityChanStd/Models/Materials/face.mat
+- Assets/UnityChanStd/Models/Texture/FO_SKIN1.tga
+- Assets/UnityChanStd/Models/Materials/Right.mat
+- Assets/UnityChanStd/Models/Texture/skin_01.tga
+- Assets/UnityChanStd/Models/Texture/DEFAULT_NORMAL.tga
+- Assets/UnityChanStd/Models/Texture/guide.tga
+- Assets/UnityChanStd/Models/Texture/hair_01_SPEC.tga
+- Assets/UnityChanStd/Models/Texture/hair_01_NRM.tga
+- Assets/UnityChanStd/Models/Materials/Left.mat
+- Assets/UnityChanStd/Models/Materials/eye_L1.mat
+- Assets/UnityChanStd/Models/Texture/body_01.tga
+- Assets/UnityChanStd/Models/Materials/eye_R1.mat
+- Assets/UnityChanStd/Models/Texture/body_01_NRM.tga
+- Assets/UnityChanStd/Models/Materials/eyebase.mat
+- Assets/UnityChanStd/Models/Texture/eye_iris_R_00.tga
+- Assets/UnityChanStd/Prefabs/UnityChan_Std.prefab
+- Assets/UnityChanStd/Models/Texture/body_01_SPEC.tga
+- Assets/UnityChanStd/Models/Materials/hair.mat
+Dependencies:
+- AssetBundles/Android/unitychan_baseassets
