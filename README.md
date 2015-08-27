@@ -29,7 +29,12 @@ JiYongYun様のものを改変して組み込んでいます。 <https://github.
 コールバックデリゲートでダウンロードの進捗値を取得できます。
 
     string[] bundleNames = { bundle_1, bundle_2, bundle_3 };`
-    AssetBundleManager.Instance.DownloadAssetBundle (bundleNames, ((float progress, int fileIndex, bool isComplete) => {
+    AssetBundleManager.Instance.DownloadAssetBundle (bundleNames, ((float progress, int fileIndex, bool isComplete, string error) => {
+        // エラー処理
+        if (error != null) {
+            Debug.Log("ダウンロードエラー");
+        }
+        
         // 進捗処理
         if (isComplete) {
             Debug.Log("ダウンロード完了");
