@@ -34,9 +34,8 @@ JiYongYun様のものを改変して組み込んでいます。 <https://github.
         if (error != null) {
             Debug.Log("ダウンロードエラー");
         }
-        
         // 進捗処理
-        if (isComplete) {
+        else if (isComplete) {
             Debug.Log("ダウンロード完了");
         }
         else {
