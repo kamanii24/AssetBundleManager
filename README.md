@@ -15,6 +15,9 @@
 アセットバンドルをビルドする外部スクリプトです。  
 JiYongYun様のものを改変して組み込んでいます。 <https://github.com/JiYongYun/Unity-5.0-AssetBundle-Demo>
 
+* **____ASSET_BUNDLES**  
+アセットバンドルのオリジナルファイルです。
+
 <br>
 # 使い方
 #### 初期設定

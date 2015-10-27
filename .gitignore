@@ -4,10 +4,10 @@
 QCAR/
 [Oo]bj/
 Heapshots/
-iOS/
 apk/
 [Tt]emp/
 Build/
+AssetBundles/
 
 # 無視するファイルリスト
 *.sln
