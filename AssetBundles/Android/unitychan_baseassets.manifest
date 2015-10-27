@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 2939352370
+CRC: 3533495319
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 417f5af00c39c6649d8fff1175f98b95
+    Hash: 52267f08a7edc7dc7b072e930fd6d494
   TypeTreeHash:
     serializedVersion: 2
     Hash: a7638ea4cf4551609eb160dc877c5616
@@ -18,24 +18,24 @@ ClassTypes:
 - Class: 91
   Script: {instanceID: 0}
 Assets:
-- Assets/UnityChanBaseAssets/Shader/Unitychan_chara_eye.shader
-- Assets/UnityChanBaseAssets/Shader/Unitychan_chara_fuku.shader
-- Assets/UnityChanBaseAssets/Animators/Animator_Std.controller
-- Assets/UnityChanBaseAssets/Shader/CharaSkin.cg
-- Assets/UnityChanBaseAssets/Shader/readme.txt
-- Assets/UnityChanBaseAssets/Animations/WIN00.anim
-- Assets/UnityChanBaseAssets/Shader/CharaMain.cg
-- Assets/UnityChanBaseAssets/Shader/Unitychan_chara_fuku_ds.shader
-- Assets/UnityChanBaseAssets/Shader/Unitychan_chara_eye_blend.shader
-- Assets/UnityChanBaseAssets/Shader/Unitychan_chara_hair_ds.shader
-- Assets/UnityChanBaseAssets/Shader/Unitychan_chara_akarami_blend.shader
-- Assets/UnityChanBaseAssets/Animations/WAIT03.anim
-- Assets/UnityChanBaseAssets/Shader/Unitychan_chara_hair.shader
-- Assets/UnityChanBaseAssets/Shader/Unitychan_chara_eyelash_blend.shader
-- Assets/UnityChanBaseAssets/Shader/Unlit.cg
-- Assets/UnityChanBaseAssets/Shader/Unitychan_chara_hada.shader
-- Assets/UnityChanBaseAssets/Shader/Unitychan_chara_hada_blend.shader
-- Assets/UnityChanBaseAssets/Animations/WAIT00.anim
-- Assets/UnityChanBaseAssets/Animators/Animator_Crs.controller
-- Assets/UnityChanBaseAssets/Shader/CharaOutline.cg
+- Assets/____ASSET_BUNDLES/unitychan_baseassets/Shader/Unitychan_chara_eye.shader
+- Assets/____ASSET_BUNDLES/unitychan_baseassets/Shader/Unitychan_chara_fuku.shader
+- Assets/____ASSET_BUNDLES/unitychan_baseassets/Animators/Animator_Std.controller
+- Assets/____ASSET_BUNDLES/unitychan_baseassets/Shader/CharaSkin.cg
+- Assets/____ASSET_BUNDLES/unitychan_baseassets/Shader/readme.txt
+- Assets/____ASSET_BUNDLES/unitychan_baseassets/Animations/WIN00.anim
+- Assets/____ASSET_BUNDLES/unitychan_baseassets/Shader/CharaMain.cg
+- Assets/____ASSET_BUNDLES/unitychan_baseassets/Shader/Unitychan_chara_fuku_ds.shader
+- Assets/____ASSET_BUNDLES/unitychan_baseassets/Shader/Unitychan_chara_eye_blend.shader
+- Assets/____ASSET_BUNDLES/unitychan_baseassets/Shader/Unitychan_chara_hair_ds.shader
+- Assets/____ASSET_BUNDLES/unitychan_baseassets/Shader/Unitychan_chara_akarami_blend.shader
+- Assets/____ASSET_BUNDLES/unitychan_baseassets/Animations/WAIT03.anim
+- Assets/____ASSET_BUNDLES/unitychan_baseassets/Shader/Unitychan_chara_hair.shader
+- Assets/____ASSET_BUNDLES/unitychan_baseassets/Shader/Unitychan_chara_eyelash_blend.shader
+- Assets/____ASSET_BUNDLES/unitychan_baseassets/Shader/Unlit.cg
+- Assets/____ASSET_BUNDLES/unitychan_baseassets/Shader/Unitychan_chara_hada.shader
+- Assets/____ASSET_BUNDLES/unitychan_baseassets/Shader/Unitychan_chara_hada_blend.shader
+- Assets/____ASSET_BUNDLES/unitychan_baseassets/Animations/WAIT00.anim
+- Assets/____ASSET_BUNDLES/unitychan_baseassets/Animators/Animator_Crs.controller
+- Assets/____ASSET_BUNDLES/unitychan_baseassets/Shader/CharaOutline.cg
 Dependencies: []

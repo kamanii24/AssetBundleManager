@@ -16,7 +16,7 @@ public class DownloadSceneDirector : MonoBehaviour {
 	void Start () {
 		// デバッグ用
 		#if DEBUG
-		Caching.CleanCache ();
+		//Caching.CleanCache ();
 		#endif
 
 		// ダウンロード開始
@@ -32,7 +32,7 @@ public class DownloadSceneDirector : MonoBehaviour {
 	{
 		// リトライボタンを無効化
 		retryBtn.SetActive(false);
-		notice.text = "必要なファイルをダウンロードしています";
+		notice.text = "NOW LOADING";
 
 		// アセットバンドルマネージャインスタンス取得
 		AssetBundleManager bundleMng = AssetBundleManager.Instance;
@@ -49,25 +49,46 @@ public class DownloadSceneDirector : MonoBehaviour {
 			if (error != null) {
 				// リトライボタンアクティブ
 				retryBtn.SetActive(true);
-				notice.text = "ダウンロードに失敗しました";
-				Debug.Log("ダウンロードエラー");
+				notice.text = "FAILED";
+
+				// その他無効化
+				count.enabled = false;
+				per.enabled = false;
+				progressImg.enabled = false;
+
+				Debug.Log("ダウンロードエラー : "+error);
 			}
 
 			// 進捗更新
 			if (!isComplete) {
-					// テキストプログレス更新
-					int prg = (int)(progress * 100f);
-					per.text = prg.ToString () + "%";
-					// プログレスバー更新
-					progressImg.fillAmount = progress;
-					// ファイル数更新
-					count.text = fileIndex + "/" + bundleNames.Length;
+				// テキストプログレス更新
+				int prg = (int)(progress * 100f);
+				per.text = prg.ToString () + "%";
+				// プログレスバー更新
+				progressImg.fillAmount = progress;
+				// ファイル数更新
+				int index = fileIndex+1;
+				count.text = index + "/" + bundleNames.Length;
 			}
 			else {
+				// ダウンロード完了
+				notice.text = "COMPLETE";
+				per.text = "100%";
+				progressImg.fillAmount = 1f;
 				Debug.Log ("ダウンロード完了");
-				// シーンロード
-				Application.LoadLevel("MainScene");
+
+				// ダウンロード完了テキストを見せるための遅延処理
+				StartCoroutine(WaitForScene());
 			}
 		}));
+	}
+
+	// 遅延処理
+	IEnumerator WaitForScene() {
+		// 1秒待ってから遷移
+		yield return new WaitForSeconds (1f);
+
+		// 遷移
+		Application.LoadLevel ("MainScene");
 	}
 }

@@ -51,10 +51,10 @@ public class AssetBundleManager : MonoBehaviour {
 	// 初期設定変数
 	private static string baseURL;	// アセットバンドルディレクトリURL
 	private static int ver;			// バージョン
+	// アセットバンドル保管用Dictionary
+	private static Dictionary<string, AssetBundle> bundleDic = null;
 	// ダウンロードファイルカウント
 	private int fileIndex = 0;
-	// アセットバンドル保管用Dictionary
-	private Dictionary<string, AssetBundle> bundleDic = null;
 
 	#endregion // PRIVATE_MEMBER_VARIABLES
 
@@ -102,7 +102,8 @@ public class AssetBundleManager : MonoBehaviour {
 	/// </summary>
 	public void LoadAssetBundle (string[] assetBundleNames, OnLoadComplete cb) {
 		// Dictionary初期化
-		bundleDic = new Dictionary<string, AssetBundle> ();
+		if (bundleDic == null)
+			bundleDic = new Dictionary<string, AssetBundle> ();
 		// URL設定
 		List<string> urlList = new List<string>();
 		foreach (string name in assetBundleNames) {
@@ -119,17 +120,26 @@ public class AssetBundleManager : MonoBehaviour {
 	/// 名前で指定したアセットを同期処理で取得します。
 	/// </summary>
 	public object GetAsset (string bundleName, string assetName) {
+
+		Debug.Log (bundleName + " : " + assetName+" : loading");
 		// アセットバンドルがロードされているか確認
 		if (bundleDic == null) {
-			Debug.LogError ("アセットバンドルがロードされていません！");
+			Debug.LogError ("Could not load " + assetName + ". because " + bundleName + " has not loaded.");
 			return null;
 		}
 		else {
-			// アセットバンドルをロード
-			AssetBundle bundle = bundleDic [bundleName];
-			// object型として返す
-			return bundle.LoadAsset (assetName);
+			// ロードしたリストに存在するかどうかチェック
+			foreach (string name in GetAllAssetBundleName()) {
+				if (bundleName == name) {
+					// アセットバンドルをロード
+					AssetBundle bundle = bundleDic [bundleName];
+					// object型として返す
+					return bundle.LoadAsset (assetName);
+				}
+			}
 		}
+		Debug.LogError ("Could not load " + assetName + ". because " + bundleName + " has not loaded.");
+		return null;
 	}
 
 	/// <summary>
@@ -138,13 +148,19 @@ public class AssetBundleManager : MonoBehaviour {
 	public void GetAssetAsync (string bundleName, string assetName, OnAsyncLoadAssetComplete cb) {
 		// アセットバンドルがロードされているか確認
 		if (bundleDic == null) {
-			Debug.LogError ("アセットバンドルがロードされていません！");
+			Debug.LogError ("It has not been initialized. Please be call Initialized() in advance.");
 			cb (null, false);
 		}
 		else {
-			// アセットバンドルをロード
-			StartCoroutine (AsyncLoadAsset (bundleName, assetName, cb));
+			foreach (string name in GetAllAssetBundleName()) {
+				if (bundleName == name) {
+					// アセットバンドルをロード
+					StartCoroutine (AsyncLoadAsset (bundleName, assetName, cb));
+					return;
+				}
+			}
 		}
+		cb (null, false);
 	}
 
 	/// <summary>
@@ -153,7 +169,7 @@ public class AssetBundleManager : MonoBehaviour {
 	public string[] GetAllAssetBundleName () {
 		// アセットバンドルがロードされているか確認
 		if (bundleDic == null) {
-			Debug.LogError ("アセットバンドルがロードされていません！");
+			Debug.LogError ("It has not been initialized. Please be call Initialized() in advance.");
 			return null;
 		}
 		else {
@@ -201,20 +217,23 @@ public class AssetBundleManager : MonoBehaviour {
 		// ロードする
 		int index = 0;
 		do {
-			// キャッシュからアセットバンドルをロードする
-			WWW www = WWW.LoadFromCacheOrDownload (urlList [index], ver);
-			// ロードを待つ
-			yield return www;
+			// ロードされているかどうかチェック
+			if (!bundleDic.ContainsKey(assetBundleNames [index])) {
+				// キャッシュからアセットバンドルをロードする
+				WWW www = WWW.LoadFromCacheOrDownload (urlList [index], ver);
+				// ロードを待つ
+				yield return www;
 
-			// エラー処理
-			if (www.error != null) {
-				cb (false, www.error);	// ロード失敗
-				throw new Exception ("error : " + www.error);
+				// エラー処理
+				if (www.error != null) {
+					cb (false, www.error);	// ロード失敗
+					throw new Exception ("error : " + www.error);
+				}
+				// ロードしたアセットバンドルをセット
+				bundleDic.Add (assetBundleNames [index], www.assetBundle);
+				// wwwを解放する
+				www.Dispose ();
 			}
-			// ロードしたアセットバンドルをセット
-			bundleDic.Add (assetBundleNames [index], www.assetBundle);
-			// wwwを解放する
-			www.Dispose ();
 		} while (++index < assetBundleNames.Length);
 
 		cb (true, null);
@@ -224,6 +243,7 @@ public class AssetBundleManager : MonoBehaviour {
 	// サーバからアセットバンドルをダウンロードする
 	IEnumerator Download (string[] assetBundleNames, OnDownloadProgressUpdate update) {
 		// アセットバンドルを全てダウンロードするまで回す
+		fileIndex = 0;
 		do {
 			// キャッシュできる状態か確認
 			while (!Caching.ready)
@@ -232,27 +252,65 @@ public class AssetBundleManager : MonoBehaviour {
 			// iOSとAndroidでアセットバンドルのディレクトリを分ける
 			string url = baseURL + assetBundleNames[fileIndex];
 
-			// ダウンロード開始
-			using(WWW www = WWW.LoadFromCacheOrDownload (url, ver)){
+			// CRCチェックを行うか確認
+			// manifestファイルをDL
+			WWW wwwManifest = new WWW(url + ".manifest");
+			// ダウンロードを待つ
+			yield return wwwManifest;
 
-				// ダウンロードが完了するまでプログレスを更新する
-				while(!www.isDone) {
-					// 更新する
-					update(www.progress, fileIndex+1, false, www.error);
-					Debug.Log ("PROGRESS : "+www.progress);
-					yield return null;
+			// manifestが存在していた場合はCRCチェックをする
+			if (wwwManifest.error == null) {
+				// manifest内部のCRCコードを抽出する
+				string[] lines = wwwManifest.text.Split(new string[]{"CRC: "}, StringSplitOptions.None);
+				uint crc = uint.Parse(lines[1].Split(new string[]{"\n"}, StringSplitOptions.None)[0]);
+
+				Debug.Log("CRC : "+crc);
+
+				// CRCチェックしてダウンロード開始
+				using(WWW www = WWW.LoadFromCacheOrDownload (url, ver, crc)) {
+					// ダウンロードが完了するまでプログレスを更新する
+					while(!www.isDone) {
+						// 更新する
+						update(www.progress, fileIndex, false, www.error);
+						yield return new WaitForEndOfFrame();
+					}
+
+					// エラー処理
+					if (www.error != null) {
+						// 完了通知
+						update (www.progress, fileIndex, false, www.error);
+						throw new Exception("WWW download had an error:" + www.error);
+					}
+					// wwwを解放する
+					www.Dispose ();
 				}
 
-				// エラー処理
-				if (www.error != null) {
-					// 完了通知
-					update (www.progress, fileIndex+1, false, www.error);
-					throw new Exception("WWW download had an error:" + www.error);
-				}
-
-				// wwwを解放する
-				www.Dispose ();
 			}
+			else {
+				Debug.Log(assetBundleNames[fileIndex]+".manifest has not found.");
+
+				// CRCチェックしてダウンロード開始
+				using(WWW www = WWW.LoadFromCacheOrDownload (url, ver)){
+					// ダウンロードが完了するまでプログレスを更新する
+					while(!www.isDone) {
+						// 更新する
+						update(www.progress, fileIndex, false, www.error);
+						yield return new WaitForEndOfFrame();
+					}
+
+					// エラー処理
+					if (www.error != null) {
+						// 完了通知
+						update (www.progress, fileIndex, false, www.error);
+						throw new Exception("WWW download had an error:" + www.error);
+					}
+					// wwwを解放する
+					www.Dispose ();
+				}
+			}
+
+
+
 		} while(++fileIndex < assetBundleNames.Length); 
 
 		// 完了通知
