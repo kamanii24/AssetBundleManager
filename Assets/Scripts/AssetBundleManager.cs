@@ -121,7 +121,7 @@ public class AssetBundleManager : MonoBehaviour {
 	/// </summary>
 	public object GetAsset (string bundleName, string assetName) {
 
-		Debug.Log (bundleName + " : " + assetName+" : loading");
+		Debug.Log ("BundleName : " + bundleName + "    AssetName : " + assetName+" : loading");
 		// アセットバンドルがロードされているか確認
 		if (bundleDic == null) {
 			Debug.LogError ("Could not load " + assetName + ". because " + bundleName + " has not loaded.");
@@ -168,11 +168,7 @@ public class AssetBundleManager : MonoBehaviour {
 	/// </summary>
 	public string[] GetAllAssetBundleName () {
 		// アセットバンドルがロードされているか確認
-		if (bundleDic == null) {
-			Debug.LogError ("It has not been initialized. Please be call Initialized() in advance.");
-			return null;
-		}
-		else {
+		if (bundleDic != null) {
 			// アセットバンドル名を取得
 			List<string> nameList = new List<string>();
 			foreach (KeyValuePair<string, AssetBundle> pair in bundleDic) {
@@ -181,6 +177,10 @@ public class AssetBundleManager : MonoBehaviour {
 			}
 			return nameList.ToArray ();
 		}
+		else {
+			Debug.LogWarning ("It has not been initialized. Please be call Initialized() in advance.");
+		}
+		return null;
 	}
 
 
@@ -193,6 +193,8 @@ public class AssetBundleManager : MonoBehaviour {
 		foreach (KeyValuePair<string, AssetBundle> pair in bundleDic) {
 			pair.Value.Unload (false);
 		}
+		// Dictionaryの内容を破棄する
+		bundleDic.Clear ();
 	}
 
 	/// <summary>
@@ -250,7 +252,8 @@ public class AssetBundleManager : MonoBehaviour {
 				yield return null;
 
 			// iOSとAndroidでアセットバンドルのディレクトリを分ける
-			string url = baseURL + assetBundleNames[fileIndex];
+			string assetBundleName = assetBundleNames[fileIndex];
+			string url = baseURL + assetBundleName;
 
 			// CRCチェックを行うか確認
 			// manifestファイルをDL
@@ -258,7 +261,9 @@ public class AssetBundleManager : MonoBehaviour {
 			// ダウンロードを待つ
 			yield return wwwManifest;
 
-			// manifestが存在していた場合はCRCチェックをする
+			Debug.Log("\""+assetBundleName +"\" download starting.");
+
+			// manifestファイルが存在していた場合はCRCチェックをする
 			if (wwwManifest.error == null) {
 				// manifest内部のCRCコードを抽出する
 				string[] lines = wwwManifest.text.Split(new string[]{"CRC: "}, StringSplitOptions.None);
@@ -266,7 +271,7 @@ public class AssetBundleManager : MonoBehaviour {
 
 				Debug.Log("CRC : "+crc);
 
-				// CRCチェックしてダウンロード開始
+				// CRCチェック有りでダウンロード
 				using(WWW www = WWW.LoadFromCacheOrDownload (url, ver, crc)) {
 					// ダウンロードが完了するまでプログレスを更新する
 					while(!www.isDone) {
@@ -281,6 +286,10 @@ public class AssetBundleManager : MonoBehaviour {
 						update (www.progress, fileIndex, false, www.error);
 						throw new Exception("WWW download had an error:" + www.error);
 					}
+					// ダウンロード成功
+					else {
+						Debug.Log("\""+assetBundleName +"\" download completed.");
+					}
 					// wwwを解放する
 					www.Dispose ();
 				}
@@ -289,7 +298,7 @@ public class AssetBundleManager : MonoBehaviour {
 			else {
 				Debug.Log(assetBundleNames[fileIndex]+".manifest has not found.");
 
-				// CRCチェックしてダウンロード開始
+				// CRCチェック無しでダウンロード
 				using(WWW www = WWW.LoadFromCacheOrDownload (url, ver)){
 					// ダウンロードが完了するまでプログレスを更新する
 					while(!www.isDone) {
@@ -303,6 +312,10 @@ public class AssetBundleManager : MonoBehaviour {
 						// 完了通知
 						update (www.progress, fileIndex, false, www.error);
 						throw new Exception("WWW download had an error:" + www.error);
+					}
+					// ダウンロード成功
+					else {
+						Debug.Log("\""+assetBundleName +"\" download completed.");
 					}
 					// wwwを解放する
 					www.Dispose ();
