@@ -16,7 +16,7 @@ public class DownloadSceneDirector : MonoBehaviour {
 	void Start () {
 		// デバッグ用
 		#if DEBUG
-		//Caching.CleanCache ();
+//		Caching.CleanCache ();
 		#endif
 
 		// ダウンロード開始

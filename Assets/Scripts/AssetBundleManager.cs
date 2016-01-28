@@ -13,7 +13,6 @@ public class AssetBundleManager : MonoBehaviour {
 
 	// コンストラクタ
 	private AssetBundleManager() {
-		Debug.Log("AssetBundleManager initialized.");
 	}
 
 	/// <summary>
@@ -29,11 +28,11 @@ public class AssetBundleManager : MonoBehaviour {
 		}
 	}
 
-	#endregion // SINGLETON
+	#endregion SINGLETON
 
 
 	// ----------------------------------------------------------------------------
-	#region PUBLIC_DELEGATE
+	#region CALLBACK_DELEGATE
 
 	// アセットバンドルダウンロードプログレス更新用
 	public delegate void OnDownloadProgressUpdate(float progress, int fileIndex, bool isComplete, string error);
@@ -42,25 +41,46 @@ public class AssetBundleManager : MonoBehaviour {
 	// 非同期アセット取得完了通知用
 	public delegate void OnAsyncLoadAssetComplete(object asset, bool isSuccess);
 
-	#endregion // PUBLIC_DELEGATE
+	#endregion CALLBACK_DELEGATE
+
+
+	// ----------------------------------------------------------------------------
+	#region PRIVATE_STATIC_MEMBER_VARIABLES
+
+	// 初期化済みかどうか
+	private static bool isEnabled = false;
+	// 初期設定変数
+	private static string baseURL = string.Empty;	// アセットバンドルディレクトリURL
+	private static int ver = -1;					// バージョン
+	// アセットバンドル保管用Dictionary
+	private static Dictionary<string, AssetBundle> bundleDic = null;
+
+	#endregion PRIVATE_STATIC_MEMBER_VARIABLES
 
 
 	// ----------------------------------------------------------------------------
 	#region PRIVATE_MEMBER_VARIABLES
 
-	// 初期設定変数
-	private static string baseURL;	// アセットバンドルディレクトリURL
-	private static int ver;			// バージョン
-	// アセットバンドル保管用Dictionary
-	private static Dictionary<string, AssetBundle> bundleDic = null;
 	// ダウンロードファイルカウント
 	private int fileIndex = 0;
 
-	#endregion // PRIVATE_MEMBER_VARIABLES
+	#endregion PRIVATE_MEMBER_VARIABLES
 
 
 	// ----------------------------------------------------------------------------
 	#region PUBLIC_PROPETY
+
+	// 初期化判定のプロパティ
+	public bool IsEnabled {
+		get {
+			if (!isEnabled) {
+				if (baseURL == string.Empty && ver < 0) {
+					Debug.LogWarning ("AssetBundleManager has not been Initialized.");
+				}
+			}
+			return isEnabled;
+		}
+	}
 
 	// ディレクトリURLのプロパティ
 	public string AssetBundleDirectoryURL {
@@ -74,7 +94,7 @@ public class AssetBundleManager : MonoBehaviour {
 		set { ver = value; }
 	}
 
-	#endregion // PUBLIC_PROPETY
+	#endregion PUBLIC_PROPETY
 
 
 	// ----------------------------------------------------------------------------
@@ -82,25 +102,50 @@ public class AssetBundleManager : MonoBehaviour {
 
 	/// <summary>
 	/// 初期設定をします。
+	/// Initializeで設定した値はstatic変数として保存されます。
 	/// </summary>
+	/// <param name="assetBundleDirectoryURL">アセットバンドルのディレクトリURLを指定します。</param>
+	/// <param name="version">アセットバンドルのバージョンを指定します。</param>
 	public void Initialize (string assetBundleDirectoryURL, int version) {
+		// 初期化済み
+		isEnabled = true;
 		// URLとバージョンをセット
 		AssetBundleDirectoryURL = assetBundleDirectoryURL;
 		Version = version;
 	}
 
 	/// <summary>
-	/// サーバからアセットバンドルをダウンロードします。
+	/// サーバから複数のアセットバンドルをダウンロードします。
 	/// </summary>
+	/// <param name="assetBundleNames">サーバからダウンロードするアセットバンドルを複数指定します。</param>
+	/// <param name="update">ダウンロードの進捗状況がコールバックで返されます。</param>
 	public void DownloadAssetBundle (string[] assetBundleNames, OnDownloadProgressUpdate update) {
-		//  ダウンロード開始
+		// 初期化済みかどうかチェック
+		if (!IsEnabled) return;
+
+		// ダウンロード開始
 		StartCoroutine (Download (assetBundleNames, update));
 	}
 
 	/// <summary>
-	/// キャッシュからアセットバンドルを取得します。
+	/// サーバからアセットバンドルをダウンロードします。
 	/// </summary>
+	/// <param name="assetBundleName">サーバからダウンロードするアセットバンドルをひとつ指定します。</param>
+	/// <param name="update">ダウンロードの進捗状況がコールバックで返されます。</param>
+	public void DownloadAssetBundle (string assetBundleName, OnDownloadProgressUpdate update) {
+		// DownloadAssetBundleを実行
+		DownloadAssetBundle (new string[] {assetBundleName}, update);
+	}
+		
+	/// <summary>
+	/// キャッシュから複数のアセットバンドルを取得します。
+	/// </summary>
+	/// <param name="assetBundleNames">取得するアセットバンドルを複数指定します。</param>
+	/// <param name="cb">完了時にコールバックで結果が返されます。</param>
 	public void LoadAssetBundle (string[] assetBundleNames, OnLoadComplete cb) {
+		// 初期化済みかどうかチェック
+		if (!IsEnabled) return;
+
 		// Dictionary初期化
 		if (bundleDic == null)
 			bundleDic = new Dictionary<string, AssetBundle> ();
@@ -115,13 +160,28 @@ public class AssetBundleManager : MonoBehaviour {
 		// ロード開始
 		StartCoroutine (Load (urlList, assetBundleNames, cb));
 	}
+		
+	/// <summary>
+	/// キャッシュからアセットバンドルを取得します。
+	/// </summary>
+	/// <param name="assetBundleName">取得するアセットバンドルをひとつ指定します。</param>
+	/// <param name="cb">完了時にコールバックで結果が返されます。</param>
+	public void LoadAssetBundle (string assetBundleName, OnLoadComplete cb) {
+		// LoadAssetBundle実行
+		LoadAssetBundle(new string[] {assetBundleName}, cb);
+	}
 
 	/// <summary>
 	/// 名前で指定したアセットを同期処理で取得します。
 	/// </summary>
+	/// <returns>object型で取得したアセットデータが返されます。適当な型にキャストして使用してください。</returns>
+	/// <param name="bundleName">取得するアセットが含まれているアセットバンドル名を指定します。</param>
+	/// <param name="assetName">取得するアセット名を指定します。</param>
 	public object GetAsset (string bundleName, string assetName) {
+		// 初期化済みかどうかチェック
+		if (!IsEnabled) return null;
 
-		Debug.Log ("BundleName : " + bundleName + "    AssetName : " + assetName+" : loading");
+		Debug.Log (bundleName + " : " + assetName+" : loading");
 		// アセットバンドルがロードされているか確認
 		if (bundleDic == null) {
 			Debug.LogError ("Could not load " + assetName + ". because " + bundleName + " has not loaded.");
@@ -145,7 +205,13 @@ public class AssetBundleManager : MonoBehaviour {
 	/// <summary>
 	/// 名前で指定したアセットを非同期処理で取得します。
 	/// </summary>
-	public void GetAssetAsync (string bundleName, string assetName, OnAsyncLoadAssetComplete cb) {
+	/// <param name="bundleName">取得するアセットが含まれているアセットバンドル名を指定します。</param>
+	/// <param name="assetName">取得するアセット名を指定します。</param>
+	/// <param name="cb">Cb.</param>
+	public void GetAssetAsync (string bundleName, string assetName, OnAsyncLoadAssetComplete cb) {// 初期化済みかどうかチェック
+		// 初期化済みかどうかチェック
+		if (!IsEnabled) return;
+
 		// アセットバンドルがロードされているか確認
 		if (bundleDic == null) {
 			Debug.LogError ("It has not been initialized. Please be call Initialized() in advance.");
@@ -167,8 +233,15 @@ public class AssetBundleManager : MonoBehaviour {
 	/// 現在ロードされているアセットバンドル名を全て取得します。
 	/// </summary>
 	public string[] GetAllAssetBundleName () {
+		// 初期化済みかどうかチェック
+		if (!IsEnabled) return null;
+
 		// アセットバンドルがロードされているか確認
-		if (bundleDic != null) {
+		if (bundleDic == null) {
+			Debug.LogError ("It has not been initialized. Please be call Initialized() in advance.");
+			return null;
+		}
+		else {
 			// アセットバンドル名を取得
 			List<string> nameList = new List<string>();
 			foreach (KeyValuePair<string, AssetBundle> pair in bundleDic) {
@@ -177,10 +250,6 @@ public class AssetBundleManager : MonoBehaviour {
 			}
 			return nameList.ToArray ();
 		}
-		else {
-			Debug.LogWarning ("It has not been initialized. Please be call Initialized() in advance.");
-		}
-		return null;
 	}
 
 
@@ -189,12 +258,17 @@ public class AssetBundleManager : MonoBehaviour {
 	/// 指定がない場合は全てのアセットバンドルをメモリから破棄します。
 	/// </summary>
 	public void Unload () {
+		// 初期化済みかどうかチェック
+		if (!IsEnabled) return;
+
 		// 全て破棄する
 		foreach (KeyValuePair<string, AssetBundle> pair in bundleDic) {
 			pair.Value.Unload (false);
 		}
-		// Dictionaryの内容を破棄する
-		bundleDic.Clear ();
+		// キーを破棄する
+		if (bundleDic != null) {
+			bundleDic.Clear();
+		}
 	}
 
 	/// <summary>
@@ -202,20 +276,27 @@ public class AssetBundleManager : MonoBehaviour {
 	/// 指定がない場合は全てのアセットバンドルを破棄します。
 	/// </summary>
 	public void Unload (string bundleName) {
+		// 初期化済みかどうかチェック
+		if (!IsEnabled) return;
+
 		// 指定されたアセットバンドルを破棄
 		bundleDic [bundleName].Unload (false);
 		// Dictionaryからも削除する
 		bundleDic.Remove (bundleName);
 	}
 
-	#endregion // PUBLIC_METHOD
+	#endregion PUBLIC_METHOD
 
 
 	// ----------------------------------------------------------------------------
 	#region PRIVATE_CORUTINE_METHOD
 
 	// キャッシュからアセットバンドルをロードする
-	IEnumerator Load (List<string> urlList, string[] assetBundleNames, OnLoadComplete cb) {
+	private IEnumerator Load (List<string> urlList, string[] assetBundleNames, OnLoadComplete cb) {
+		// キャッシュできる状態か確認
+		while (!Caching.ready)
+			yield return null;
+		
 		// ロードする
 		int index = 0;
 		do {
@@ -243,17 +324,16 @@ public class AssetBundleManager : MonoBehaviour {
 
 
 	// サーバからアセットバンドルをダウンロードする
-	IEnumerator Download (string[] assetBundleNames, OnDownloadProgressUpdate update) {
+	private IEnumerator Download (string[] assetBundleNames, OnDownloadProgressUpdate update) {
+		// キャッシュできる状態か確認
+		while (!Caching.ready)
+			yield return null;
+		
 		// アセットバンドルを全てダウンロードするまで回す
 		fileIndex = 0;
 		do {
-			// キャッシュできる状態か確認
-			while (!Caching.ready)
-				yield return null;
-
 			// iOSとAndroidでアセットバンドルのディレクトリを分ける
-			string assetBundleName = assetBundleNames[fileIndex];
-			string url = baseURL + assetBundleName;
+			string url = baseURL + assetBundleNames[fileIndex];
 
 			// CRCチェックを行うか確認
 			// manifestファイルをDL
@@ -261,9 +341,7 @@ public class AssetBundleManager : MonoBehaviour {
 			// ダウンロードを待つ
 			yield return wwwManifest;
 
-			Debug.Log("\""+assetBundleName +"\" download starting.");
-
-			// manifestファイルが存在していた場合はCRCチェックをする
+			// manifestが存在していた場合はCRCチェックをする
 			if (wwwManifest.error == null) {
 				// manifest内部のCRCコードを抽出する
 				string[] lines = wwwManifest.text.Split(new string[]{"CRC: "}, StringSplitOptions.None);
@@ -271,7 +349,7 @@ public class AssetBundleManager : MonoBehaviour {
 
 				Debug.Log("CRC : "+crc);
 
-				// CRCチェック有りでダウンロード
+				// CRCチェックしてダウンロード開始
 				using(WWW www = WWW.LoadFromCacheOrDownload (url, ver, crc)) {
 					// ダウンロードが完了するまでプログレスを更新する
 					while(!www.isDone) {
@@ -286,10 +364,6 @@ public class AssetBundleManager : MonoBehaviour {
 						update (www.progress, fileIndex, false, www.error);
 						throw new Exception("WWW download had an error:" + www.error);
 					}
-					// ダウンロード成功
-					else {
-						Debug.Log("\""+assetBundleName +"\" download completed.");
-					}
 					// wwwを解放する
 					www.Dispose ();
 				}
@@ -298,7 +372,7 @@ public class AssetBundleManager : MonoBehaviour {
 			else {
 				Debug.Log(assetBundleNames[fileIndex]+".manifest has not found.");
 
-				// CRCチェック無しでダウンロード
+				// ダウンロード開始
 				using(WWW www = WWW.LoadFromCacheOrDownload (url, ver)){
 					// ダウンロードが完了するまでプログレスを更新する
 					while(!www.isDone) {
@@ -313,17 +387,10 @@ public class AssetBundleManager : MonoBehaviour {
 						update (www.progress, fileIndex, false, www.error);
 						throw new Exception("WWW download had an error:" + www.error);
 					}
-					// ダウンロード成功
-					else {
-						Debug.Log("\""+assetBundleName +"\" download completed.");
-					}
 					// wwwを解放する
 					www.Dispose ();
 				}
 			}
-
-
-
 		} while(++fileIndex < assetBundleNames.Length); 
 
 		// 完了通知
@@ -332,7 +399,7 @@ public class AssetBundleManager : MonoBehaviour {
 
 
 	// 非同期でアセットを取得する
-	IEnumerator AsyncLoadAsset (string bundleName, string assetName, OnAsyncLoadAssetComplete cb) {
+	private IEnumerator AsyncLoadAsset (string bundleName, string assetName, OnAsyncLoadAssetComplete cb) {
 		// アセットバンドルをロード
 		AssetBundle bundle = bundleDic [bundleName];
 		// 非同期でアセットをロードする
@@ -344,5 +411,5 @@ public class AssetBundleManager : MonoBehaviour {
 		cb(request.asset, true);
 	}
 
-	#endregion // PRIVATE_CORUTINE_METHOD
+	#endregion PRIVATE_CORUTINE_METHOD
 }
