@@ -39,13 +39,13 @@ public class AssetLoadSceneDirector : MonoBehaviour {
 
 			if (assetName == "UnityChan_Std") {
 				// 同期でモデルロード
-				GameObject obj = bundleMng.GetAsset ("unitychan_std", assetName) as GameObject;
+				GameObject obj = bundleMng.GetAsset<GameObject> ("unitychan_std", assetName) as GameObject;
 				// モデル表示
 				model = Instantiate (obj, Vector3.zero, Quaternion.identity) as GameObject;
 			}
 			else if (assetName == "UnityChan_Crs") {
 				// 非同期でモデルをロード
-				bundleMng.GetAssetAsync ("unitychan_crs", assetName, ((object asset, bool isSuccess) => {
+				bundleMng.GetAssetAsync ("unitychan_crs", assetName, ((Object asset, bool isSuccess) => {
 					if (isSuccess) {
 						// モデル表示
 						model = Instantiate ((GameObject)asset, Vector3.zero, Quaternion.identity) as GameObject;

@@ -31,7 +31,7 @@ JiYongYun様のものを改変して組み込んでいます。 <https://github.
 **DownloadAssetBundle**でダウンロードするアセットバンドル名を指定します。  
 コールバックデリゲートでダウンロードの進捗値を取得できます。
 
-    string[] bundleNames = { bundle_1, bundle_2, bundle_3 };`
+    string[] bundleNames = { bundle_1, bundle_2, bundle_3 };
     AssetBundleManager.Instance.DownloadAssetBundle (bundleNames, ((float progress, int fileIndex, bool isComplete, string error) => {
         // エラー処理
         if (error != null) {
@@ -46,7 +46,7 @@ JiYongYun様のものを改変して組み込んでいます。 <https://github.
             Debug.Log(per+"%");
             Debug.LoG(fileIndex + "/" + bundleNames.Length);
         }
-    }));`
+    }));
 
 <br>
 #### アセットバンドルのロード
@@ -66,13 +66,16 @@ JiYongYun様のものを改変して組み込んでいます。 <https://github.
 <br>
 #### アセットの取得
 ロードしたアセットバンドルから必要なアセットを取得するには**GetAsset**に取得したいアセット名と、それが含まれるアセットバンドル名をしていします。  
-取得したアセットはobject型なので適当な型にキャストします。
+取得したアセットはObject型なので適当な型にキャストします。
 
-    GameObject obj = AssetBundleManager.Instance.GetAsset (bundleName, assetName) as GameObject;
+*型指定なし
+    Object obj = AssetBundleManager.Instance.GetAsset (bundleName, assetName);
 
-非同期で取得する場合は
+*ジェネリック型指定
+    AudioClip clip = AssetBundleManager.Instance.GetAsset<AudioClip> (bundleName, assetName);
 
-    GetAssetAsync (bundleName, assetName, ((object asset, bool isSuccess) => {
+*非同期
+    GetAssetAsync (bundleName, assetName, ((Object asset, bool isSuccess) => {
        if (isSuccess) {
            Instantiate ((GameObject)asset, Vector3.zero, Quaternion.identity);
        }
@@ -94,8 +97,6 @@ JiYongYun様のものを改変して組み込んでいます。 <https://github.
 
     AssetBundleManager.Instance.Unload(bundleName);
 
-#### 使用バージョン
-Unity 5.3.1f1  
 
 <br><br><br><br>
 ## リリースノート
@@ -105,13 +106,28 @@ Unity 5.3.1f1
 指定ディレクトリに.manifestファイルがない場合は以前の通りCRCの照合なしで実行されます。
 
 ####▽ 2016/1/28
-* **オーバーロード関数の追加**<br>
-DonwloadAssetBundleとLoadAssetBundleに配列ではないstring変数として引数に渡すことができるオーバーロード関数を追加しました。<br>
+* **オーバーロードメソッドの追加**<br>
+DonwloadAssetBundleとLoadAssetBundleに配列ではないstring変数として引数に渡すことができるオーバーロードメソッドを追加しました。<br>
 これにより単一のアセットバンドルの読み込みがより効率化します。
 
 * **初期化チェック**<br>
-AssetBundleManagerの関数をコールしたタイミングで初期化チェックが行われるようになりました。
-初期化が行われずに各関数が実行された場合は警告がコンソールに出力されます。
+AssetBundleManagerのメソッドをコールしたタイミングで初期化チェックが行われるようになりました。
+初期化が行われずに各メソッドが実行された場合は警告がコンソールに出力されます。
+
+####▽ 2016/8/4
+* **GetAssetの戻り値をジェネリック型で指定できるオーバーロードメソッドの追加**<br>
+GetAsset<T>で取得できるオブジェクトを型指定できるようになりました。<br>
+取得したオブジェクトを各型にキャストする必要がなくなります。。
+
+* **戻り値をobjectからUnityEngine.Objectへ変更**<br>
+デフォルトの戻り値の型をSystem.objectからUnityEngine.Objectへ変更しました。
+
+
+<br><br><br><br>
+## ビルド環境
+Unity 5.4.0f3
+MacOSX El Capitan 10.11.5
+
 
 <br><br><br><br>
 ## Unity-Chan ライセンス
