@@ -121,8 +121,7 @@ AssetBundleManagerのメソッドをコールしたタイミングで初期化�
 GetAsset<T>で取得できるオブジェクトを型指定できるようになりました。<br>
 取得したオブジェクトを各型にキャストする必要がなくなります。。
 
-* **戻り値をobjectからUnityEngine.Objectへ変更**<br>
-デフォルトの戻り値の型をSystem.objectからUnityEngine.Objectへ変更しました。
+* **型指定なしのGetAssetの戻り値をUnityEngine.Objectへ変更**<br>
 
 <br>
 ## ビルド環境
