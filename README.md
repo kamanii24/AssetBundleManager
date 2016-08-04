@@ -100,8 +100,7 @@ JiYongYun様のものを改変して組み込んでいます。 <https://github.
 
     AssetBundleManager.Instance.Unload(bundleName);
 
-
-<br><br><br><br>
+<br>
 ## リリースノート
 ####- 2015/10/27
 * **CRCを照合して更新されたアセットバンドルのみをダウンロードされる機能の追加**<br>
@@ -125,10 +124,9 @@ GetAsset<T>で取得できるオブジェクトを型指定できるようにな
 * **戻り値をobjectからUnityEngine.Objectへ変更**<br>
 デフォルトの戻り値の型をSystem.objectからUnityEngine.Objectへ変更しました。
 
-
-<br><br><br><br>
+<br>
 ## ビルド環境
-Unity 5.4.0f3
+Unity 5.4.0f3<br>
 MacOSX El Capitan 10.11.5
 
 
