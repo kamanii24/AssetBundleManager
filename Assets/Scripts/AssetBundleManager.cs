@@ -15,22 +15,18 @@ public class AssetBundleManager : MonoBehaviour {
 	#region SINGLETON
 
 	// シングルトン宣言
-	private static AssetBundleManager mInstance;
-
-	// コンストラクタ
-	private AssetBundleManager() {
-	}
+	private static AssetBundleManager instance;
 
 	/// <summary>
 	/// 初回はInitializeで初期値を設定します。
 	/// </summary>
 	public static AssetBundleManager Instance {
 		get {
-			if (mInstance == null) {
+			if (instance == null) {
 				GameObject gObj = new GameObject("AssetBundleManager");
-				mInstance = gObj.AddComponent<AssetBundleManager>();
+				instance = gObj.AddComponent<AssetBundleManager>();
 			}
-			return mInstance;
+			return instance;
 		}
 	}
 

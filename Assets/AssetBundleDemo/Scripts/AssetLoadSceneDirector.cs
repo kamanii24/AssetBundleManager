@@ -5,7 +5,6 @@ public class AssetLoadSceneDirector : MonoBehaviour {
 
 	AssetBundleManager bundleMng;
 	private bool isButtonEnabled = false;
-
 	private GameObject model = null;
 
 	// Use this for initialization

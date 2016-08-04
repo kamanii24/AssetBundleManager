@@ -24,16 +24,16 @@ public class DownloadSceneDirector : MonoBehaviour {
 
 		// ダウンロード開始 ====
 
-		// リトライボタンを無効化
-		retryBtn.SetActive(false);
-		notice.text = "NOW LOADING";
-
 		// アセットバンドルマネージャインスタンス取得
 		AssetBundleManager bundleMng = AssetBundleManager.Instance;
 		// 初期値設定
 		bundleMng.Initialize ("https://dl.dropboxusercontent.com/u/91930162/github/OSX/", 1);
 		// ダウンロード開始
 		bundleMng.DownloadAssetBundle (bundleNames, OnDownloading);
+
+		// リトライボタンを無効化
+		retryBtn.SetActive(false);
+		notice.text = "NOW LOADING";
 	}
 	
 	// Update is called once per frame
