@@ -66,15 +66,18 @@ JiYongYun様のものを改変して組み込んでいます。 <https://github.
 <br>
 #### アセットの取得
 ロードしたアセットバンドルから必要なアセットを取得するには**GetAsset**に取得したいアセット名と、それが含まれるアセットバンドル名をしていします。  
-取得したアセットはObject型なので適当な型にキャストします。
+取得したアセットはObject型なので適当な型にキャストします。<br>
 
-*型指定なし
+*型指定なし*<br>
+
     Object obj = AssetBundleManager.Instance.GetAsset (bundleName, assetName);
 
-*ジェネリック型指定
+*ジェネリック型指定*<br>
+
     AudioClip clip = AssetBundleManager.Instance.GetAsset<AudioClip> (bundleName, assetName);
 
-*非同期
+*非同期*<br>
+
     GetAssetAsync (bundleName, assetName, ((Object asset, bool isSuccess) => {
        if (isSuccess) {
            Instantiate ((GameObject)asset, Vector3.zero, Quaternion.identity);
@@ -100,12 +103,12 @@ JiYongYun様のものを改変して組み込んでいます。 <https://github.
 
 <br><br><br><br>
 ## リリースノート
-####▽ 2015/10/27
+####- 2015/10/27
 * **CRCを照合して更新されたアセットバンドルのみをダウンロードされる機能の追加**<br>
 アセットバンドルのビルド時に生成される.manifestファイルをアセットバンドル本体と併せて同ディレクトリに置くことで、アセットバンドルのダウンロード実行時に更新されたアセットバンドルのみをダウンロードされるように改修しました。<br>
 指定ディレクトリに.manifestファイルがない場合は以前の通りCRCの照合なしで実行されます。
 
-####▽ 2016/1/28
+####- 2016/1/28
 * **オーバーロードメソッドの追加**<br>
 DonwloadAssetBundleとLoadAssetBundleに配列ではないstring変数として引数に渡すことができるオーバーロードメソッドを追加しました。<br>
 これにより単一のアセットバンドルの読み込みがより効率化します。
@@ -114,7 +117,7 @@ DonwloadAssetBundleとLoadAssetBundleに配列ではないstring変数として�
 AssetBundleManagerのメソッドをコールしたタイミングで初期化チェックが行われるようになりました。
 初期化が行われずに各メソッドが実行された場合は警告がコンソールに出力されます。
 
-####▽ 2016/8/4
+####- 2016/8/4
 * **GetAssetの戻り値をジェネリック型で指定できるオーバーロードメソッドの追加**<br>
 GetAsset<T>で取得できるオブジェクトを型指定できるようになりました。<br>
 取得したオブジェクトを各型にキャストする必要がなくなります。。
