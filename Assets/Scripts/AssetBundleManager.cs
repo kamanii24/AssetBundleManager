@@ -1,7 +1,7 @@
 ﻿// ========
 // AssetBundleManager.cs
 // v1.1.1
-// Created by kamanii24
+// Created by Kamanii
 // ========
 
 using UnityEngine;
