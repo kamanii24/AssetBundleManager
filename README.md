@@ -127,10 +127,8 @@ errorチェック処理をIsNullOrEmptyでの判定に変更。
 Unity 5.5.3f1<br>
 MacOSX El Capitan 10.12.5
 
-
-
-### ScriptsForAssetBundleSystemについて
-アセットバンドルをビルドする外部スクリプトです。
+## ScriptsForAssetBundleSystemについて
+アセットバンドルをビルドする外部スクリプトです。<br>
 JiYongYun氏 <https://github.com/JiYongYun/Unity-5.0-AssetBundle-Demo>
 
 <br><br><br>
