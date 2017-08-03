@@ -5,20 +5,7 @@
 *※サンプルでダウンロードするアセットバンドルにユニティちゃんアセットを使用しています。*
 
 #### 自プロジェクトでの使用
-**Assets/Scripts/AssetBundleManager.cs**が本体です。自プロジェクトで使用する場合は**AssetBundleManager.cs**のみを取り出してお使いください。  
-
-#### その他ファイル
-* **UnityChanScripts**  
-アセットバンドルに内包されているユニティちゃんに適応されるスクリプト群です。
-
-* **ScriptsForAssetBundleSystem**  
-アセットバンドルをビルドする外部スクリプトです。  
-JiYongYun様のものを改変して組み込んでいます。 <https://github.com/JiYongYun/Unity-5.0-AssetBundle-Demo>
-
-* **____ASSET_BUNDLES**  
-アセットバンドルのオリジナルファイルです。
-
-<br>
+**AssetBundleManager.unitypackage**を自プロジェクトへインポートしてお使いください。
 
 # 使い方
 #### 初期設定<br>
@@ -139,6 +126,10 @@ errorチェック処理をIsNullOrEmptyでの判定に変更。
 Unity 5.5.3f1<br>
 MacOSX El Capitan 10.12.5
 
+
+* **ScriptsForAssetBundleSystemについて**
+アセットバンドルをビルドする外部スクリプトです。
+JiYongYun氏 <https://github.com/JiYongYun/Unity-5.0-AssetBundle-Demo>
 
 <br><br><br>
 ## Unity-Chan ライセンス
