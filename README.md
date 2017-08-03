@@ -7,6 +7,7 @@
 #### 自プロジェクトでの使用
 **AssetBundleManager.unitypackage**を自プロジェクトへインポートしてお使いください。
 
+
 # 使い方
 #### 初期設定<br>
 初回に**Initialize**をコールし、アセットバンドルが含まれるサーバ上のディレクトリとアセットバンドルのバージョンを指定します。  
@@ -111,7 +112,7 @@ DonwloadAssetBundleとLoadAssetBundleに配列ではないstring変数として�
 AssetBundleManagerのメソッドをコールしたタイミングで初期化チェックが行われるようになりました。
 初期化が行われずに各メソッドが実行された場合は警告がコンソールに出力されます。
 
-#### - 2016/8/4
+#### - 2016/8/3
 * **GetAssetの戻り値をジェネリック型で指定できるオーバーロードメソッドの追加**<br>
 GetAsset<T>で取得できるオブジェクトを型指定できるようになりました。<br>
 取得したオブジェクトを各型にキャストする必要がなくなります。
@@ -127,7 +128,8 @@ Unity 5.5.3f1<br>
 MacOSX El Capitan 10.12.5
 
 
-* **ScriptsForAssetBundleSystemについて**
+
+### ScriptsForAssetBundleSystemについて
 アセットバンドルをビルドする外部スクリプトです。
 JiYongYun氏 <https://github.com/JiYongYun/Unity-5.0-AssetBundle-Demo>
 
