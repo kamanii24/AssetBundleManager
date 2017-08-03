@@ -107,6 +107,7 @@ JiYongYun様のものを改変して組み込んでいます。 <https://github.
     AssetBundleManager.Instance.Unload(bundleName);
 
 <br>
+
 ## リリースノート
 
 #### - 2015/10/27<br>
@@ -123,25 +124,23 @@ DonwloadAssetBundleとLoadAssetBundleに配列ではないstring変数として�
 AssetBundleManagerのメソッドをコールしたタイミングで初期化チェックが行われるようになりました。
 初期化が行われずに各メソッドが実行された場合は警告がコンソールに出力されます。
 
-####- 2016/8/4
+#### - 2016/8/4
 * **GetAssetの戻り値をジェネリック型で指定できるオーバーロードメソッドの追加**<br>
 GetAsset<T>で取得できるオブジェクトを型指定できるようになりました。<br>
 取得したオブジェクトを各型にキャストする必要がなくなります。
 
 * **型指定なしのGetAssetの戻り値をUnityEngine.Objectへ変更**
 
-####- 2016/8/4
+#### - 2016/8/4
 * **Unity2017対応**<br>
 errorチェック処理をIsNullOrEmptyでの判定に変更。
 
-
-<br>
 ## ビルド環境
 Unity 5.5.3f1<br>
 MacOSX El Capitan 10.12.5
 
 
-<br><br><br><br>
+<br><br><br>
 ## Unity-Chan ライセンス
 本リポジトリには、UnityChanがAssetsとして含まれています。 以下のライセンスに従います。
 
