@@ -7,108 +7,114 @@ using System.IO;
 
 public class BuildScript
 {
-	const string kAssetBundlesOutputPath = "AssetBundles";
-	public static bool lz4Complession = false;
+    const string kAssetBundlesOutputPath = "AssetBundles";
+    public enum CompressionType { Uncompress, LZMA, LZ4 }
 
-	public static void BuildAssetBundles()
-	{
-		// Choose the output path according to the build target.
-		string outputPath = Path.Combine(kAssetBundlesOutputPath,  BaseLoader.GetPlatformFolderForAssetBundles(EditorUserBuildSettings.activeBuildTarget) );
-		if (!Directory.Exists(outputPath) )
-			Directory.CreateDirectory (outputPath);
+    public static void BuildAssetBundles(CompressionType compressionType = CompressionType.LZMA)
+    {
+        // Choose the output path according to the build target.
+        string outputPath = Path.Combine(kAssetBundlesOutputPath, BaseLoader.GetPlatformFolderForAssetBundles(EditorUserBuildSettings.activeBuildTarget));
+        if (!Directory.Exists(outputPath))
+            Directory.CreateDirectory(outputPath);
 
-        if (lz4Complession)
-		{
-			Debug.Log("LZ4 Compression Build.");
-            BuildPipeline.BuildAssetBundles(outputPath, BuildAssetBundleOptions.ChunkBasedCompression, EditorUserBuildSettings.activeBuildTarget);
-		}
-        else
-		{
-            Debug.Log("LZMA Compression Build.");
-            BuildPipeline.BuildAssetBundles(outputPath, BuildAssetBundleOptions.None, EditorUserBuildSettings.activeBuildTarget);
-		}
-	}
+        BuildAssetBundleOptions buildOptions = BuildAssetBundleOptions.None;
+        switch (compressionType)
+        {
+            case CompressionType.Uncompress:
+                buildOptions = BuildAssetBundleOptions.UncompressedAssetBundle;
+                Debug.Log("Uncompression Build.");
+                break;
+            case CompressionType.LZ4:
+                buildOptions = BuildAssetBundleOptions.ChunkBasedCompression;
+                Debug.Log("LZ4 Compression Build.");
+                break;
+            default:
+                Debug.Log("LZMA Compression Build.");
+				break;
+        }
+        BuildPipeline.BuildAssetBundles(outputPath, buildOptions, EditorUserBuildSettings.activeBuildTarget);
+    }
 
-	public static void BuildPlayer()
-	{
-		var outputPath = EditorUtility.SaveFolderPanel("Choose Location of the Built Game", "", "");
-		if (outputPath.Length == 0)
-			return;
+    public static void BuildPlayer()
+    {
+        var outputPath = EditorUtility.SaveFolderPanel("Choose Location of the Built Game", "", "");
+        if (outputPath.Length == 0)
+            return;
 
-		string[] levels = GetLevelsFromBuildSettings();
-		if (levels.Length == 0)
-		{
-			Debug.Log("Nothing to build.");
-			return;
-		}
+        string[] levels = GetLevelsFromBuildSettings();
+        if (levels.Length == 0)
+        {
+            Debug.Log("Nothing to build.");
+            return;
+        }
 
-		string targetName = GetBuildTargetName(EditorUserBuildSettings.activeBuildTarget);
-		if (targetName == null)
-			return;
+        string targetName = GetBuildTargetName(EditorUserBuildSettings.activeBuildTarget);
+        if (targetName == null)
+            return;
 
-		// Build and copy AssetBundles.
-		BuildScript.BuildAssetBundles();
-		BuildScript.CopyAssetBundlesTo(Path.Combine(Application.streamingAssetsPath, kAssetBundlesOutputPath) );
+        // Build and copy AssetBundles.
+        BuildScript.BuildAssetBundles();
+        BuildScript.CopyAssetBundlesTo(Path.Combine(Application.streamingAssetsPath, kAssetBundlesOutputPath));
 
-		BuildOptions option = EditorUserBuildSettings.development ? BuildOptions.Development : BuildOptions.None;
-		BuildPipeline.BuildPlayer(levels, outputPath + targetName, EditorUserBuildSettings.activeBuildTarget, option);
-	}
+        BuildOptions option = EditorUserBuildSettings.development ? BuildOptions.Development : BuildOptions.None;
+        BuildPipeline.BuildPlayer(levels, outputPath + targetName, EditorUserBuildSettings.activeBuildTarget, option);
+    }
 
-	public static string GetBuildTargetName(BuildTarget target)
-	{
-		switch(target)
-		{
-		case BuildTarget.Android :
-			return "/test.apk";
-		case BuildTarget.StandaloneWindows:
-		case BuildTarget.StandaloneWindows64:
-			return "/test.exe";
-		case BuildTarget.StandaloneOSXIntel:
-		case BuildTarget.StandaloneOSXIntel64:
-		case BuildTarget.StandaloneOSXUniversal:
-			return "/test.app";
+    public static string GetBuildTargetName(BuildTarget target)
+    {
+        switch (target)
+        {
+            case BuildTarget.Android:
+                return "/test.apk";
+            case BuildTarget.StandaloneWindows:
+            case BuildTarget.StandaloneWindows64:
+                return "/test.exe";
+            case BuildTarget.StandaloneOSXIntel:
+            case BuildTarget.StandaloneOSXIntel64:
+            case BuildTarget.StandaloneOSXUniversal:
+                return "/test.app";
 #if !UNITY_2017_1_OR_NEWER
         case BuildTarget.WebPlayer:
 		case BuildTarget.WebPlayerStreamed:
 			return "";
 			// Add more build targets for your own.
 #endif
-		default:
-			Debug.Log("Target not implemented.");
-			return null;
-		}
-	}
+            default:
+                Debug.Log("Target not implemented.");
+                return null;
+        }
+    }
 
-	static void CopyAssetBundlesTo(string outputPath)
-	{
-		// Clear streaming assets folder.
-		FileUtil.DeleteFileOrDirectory(Application.streamingAssetsPath);
-		Directory.CreateDirectory(outputPath);
+    static void CopyAssetBundlesTo(string outputPath)
+    {
+        // Clear streaming assets folder.
+        FileUtil.DeleteFileOrDirectory(Application.streamingAssetsPath);
+        Directory.CreateDirectory(outputPath);
 
-		string outputFolder = BaseLoader.GetPlatformFolderForAssetBundles(EditorUserBuildSettings.activeBuildTarget);
+        string outputFolder = BaseLoader.GetPlatformFolderForAssetBundles(EditorUserBuildSettings.activeBuildTarget);
 
-		// Setup the source folder for assetbundles.
-		var source = Path.Combine(Path.Combine(System.Environment.CurrentDirectory, kAssetBundlesOutputPath), outputFolder);
-		if (!System.IO.Directory.Exists(source) )
-			Debug.Log("No assetBundle output folder, try to build the assetBundles first.");
+        // Setup the source folder for assetbundles.
+        var source = Path.Combine(Path.Combine(System.Environment.CurrentDirectory, kAssetBundlesOutputPath), outputFolder);
+        if (!System.IO.Directory.Exists(source))
+            Debug.Log("No assetBundle output folder, try to build the assetBundles first.");
 
-		// Setup the destination folder for assetbundles.
-		var destination = System.IO.Path.Combine(outputPath, outputFolder);
-		if (System.IO.Directory.Exists(destination) )
-			FileUtil.DeleteFileOrDirectory(destination);
-		
-		FileUtil.CopyFileOrDirectory(source, destination);
-	}
+        // Setup the destination folder for assetbundles.
+        var destination = System.IO.Path.Combine(outputPath, outputFolder);
+        if (System.IO.Directory.Exists(destination))
+            FileUtil.DeleteFileOrDirectory(destination);
 
-	static string[] GetLevelsFromBuildSettings()
-	{
-		List<string> levels = new List<string>();
-		for(int i = 0 ; i < EditorBuildSettings.scenes.Length; ++i)
-		{
-			if (EditorBuildSettings.scenes[i].enabled)
-				levels.Add(EditorBuildSettings.scenes[i].path);
-		}
+        FileUtil.CopyFileOrDirectory(source, destination);
+    }
 
-		return levels.ToArray();
-	}
+    static string[] GetLevelsFromBuildSettings()
+    {
+        List<string> levels = new List<string>();
+        for (int i = 0; i < EditorBuildSettings.scenes.Length; ++i)
+        {
+            if (EditorBuildSettings.scenes[i].enabled)
+                levels.Add(EditorBuildSettings.scenes[i].path);
+        }
+
+        return levels.ToArray();
+    }
 }

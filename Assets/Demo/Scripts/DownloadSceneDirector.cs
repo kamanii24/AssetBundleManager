@@ -7,6 +7,8 @@ public class DownloadSceneDirector : MonoBehaviour
 {
     // 起動時にDL済みのAssetBundleを削除するかどうか
     public bool isCleanCache = false;
+    // AssetBundleのベースURL
+    public string baseURL = "http://";
     // ダウンロード対象のアセットバンドル
     public string[] bundleNames = { "unitychan_std", "unitychan_crs", "unitychan_baseassets" };
     // プログレス
@@ -30,7 +32,7 @@ public class DownloadSceneDirector : MonoBehaviour
         // アセットバンドルマネージャインスタンス取得
         AssetBundleManager bundleMng = AssetBundleManager.Instance;
         // 初期値設定
-        bundleMng.Initialize("https://cs-reporters.s3.amazonaws.com/apps/test/assetbundles/iOS/");
+        bundleMng.Initialize(baseURL);
         // ダウンロード開始
         bundleMng.DownloadAssetBundle(bundleNames, OnDownloading);
 

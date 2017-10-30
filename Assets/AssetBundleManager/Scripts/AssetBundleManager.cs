@@ -1,6 +1,6 @@
 ﻿// ========
 // AssetBundleManager.cs
-// v1.1.2
+// v1.2.0
 // Created by kamanii24
 // ========
 
@@ -120,6 +120,8 @@ public class AssetBundleManager : MonoBehaviour
         AssetBundleDirectoryURL = assetBundleDirectoryURL;
         ver = version;
 
+        Debug.Log(AssetBundleDirectoryURL);
+
         // Dictionary初期化
         if (bundleDic == null)
             bundleDic = new Dictionary<string, AssetBundle>();
@@ -129,12 +131,11 @@ public class AssetBundleManager : MonoBehaviour
     /// サーバから複数のアセットバンドルをダウンロードします。
     /// </summary>
     /// <param name="assetBundleNames">サーバからダウンロードするアセットバンドルを複数指定します。</param>
-    /// <param name="update">ダウンロードの進捗状況がコールバックで返されます。</param>
+    /// <param name="update">ダウンロードの進捗状況が0.0~1.0のfloat形式で返されます。</param>
     public void DownloadAssetBundle(string[] assetBundleNames, OnDownloadProgressUpdate update)
     {
         // 初期化済みかどうかチェック
         if (!IsEnabled) return;
-
         // ダウンロード開始
         StartCoroutine(Download(assetBundleNames, update));
     }
@@ -396,7 +397,7 @@ public class AssetBundleManager : MonoBehaviour
                     throw new Exception("error : " + www.error);
                 }
                 // ロードしたアセットバンドルをセット
-                AssetBundle bundle = ((DownloadHandlerAssetBundle)www.downloadHandler).assetBundle;
+                AssetBundle bundle = DownloadHandlerAssetBundle.GetContent(www);
                 bundleDic.Add(assetBundleNames[fileIndex], bundle);
             }
         } while (++index < assetBundleNames.Length);
@@ -428,76 +429,50 @@ public class AssetBundleManager : MonoBehaviour
             UnityWebRequest wwwManifest = UnityWebRequest.Get(manifestURL);
             // ダウンロードを待つ
             yield return wwwManifest.SendWebRequest();
-
+            
             // manifestが存在していた場合はCRCチェックをする
+            uint crc;
             if (string.IsNullOrEmpty(wwwManifest.error))
             {
                 // manifest内部のCRCコードを抽出する
                 string[] lines = wwwManifest.downloadHandler.text.Split(new string[] { "CRC: " }, StringSplitOptions.None);
-                uint crc = uint.Parse(lines[1].Split(new string[] { "\n" }, StringSplitOptions.None)[0]);
+                crc = uint.Parse(lines[1].Split(new string[] { "\n" }, StringSplitOptions.None)[0]);
 
-                Debug.Log("CRC : " + crc);
-
-                // CRCチェックしてダウンロード開始
-                using (UnityWebRequest www = UnityWebRequest.GetAssetBundle(url, ver, crc))
-                {
-                    // ダウンロード開始
-                    www.SendWebRequest();
-                    // ダウンロードが完了するまでプログレスを更新する
-                    while (www.downloadProgress < 1f)
-                    {
-                        Debug.Log(www.downloadProgress + " : " +www.downloadedBytes);
-                        // 更新する
-                        update(www.downloadProgress, fileIndex, false, www.error);
-                        yield return new WaitForEndOfFrame();
-                    }
-
-                    // エラー処理
-                    if (!string.IsNullOrEmpty(www.error))
-                    {
-                        // 完了通知
-                        update(www.downloadProgress, fileIndex, false, www.error);
-                        // wwwを解放する
-                        www.Dispose();
-                        throw new Exception("WWW download had an error:" + www.error);
-                    }
-                    // ロードしたアセットバンドルをセット
-                    AssetBundle bundle = ((DownloadHandlerAssetBundle)www.downloadHandler).assetBundle;
-                    bundleDic.Add(assetBundleNames[fileIndex], bundle);
-                    // wwwを解放する
-                    www.Dispose();
-                }
+                Debug.Log(assetBundleNames[fileIndex] + ".manifest CRC : " + crc);
             }
             else
             {
+                crc = 0;
                 Debug.Log(assetBundleNames[fileIndex] + ".manifest has not found.");
+            }
 
+            // CRCチェックしてダウンロード開始
+            using (UnityWebRequest www = UnityWebRequest.GetAssetBundle(url, ver, crc))
+            {
                 // ダウンロード開始
-                using (UnityWebRequest www = UnityWebRequest.GetAssetBundle(url, ver))
+                www.SendWebRequest();
+                // ダウンロードが完了するまでプログレスを更新する
+                while (www.downloadProgress < 1f)
                 {
-                    // ダウンロードが完了するまでプログレスを更新する
-                    while (!www.isDone)
-                    {
-                        // 更新する
-                        update(www.downloadProgress, fileIndex, false, www.error);
-                        yield return new WaitForEndOfFrame();
-                    }
+                    // 更新する
+                    update(www.downloadProgress, fileIndex, false, www.error);
+                    yield return new WaitForEndOfFrame();
+                }
 
-                    // エラー処理
-                    if (!string.IsNullOrEmpty(www.error))
-                    {
-                        // 完了通知
-                        update(www.downloadProgress, fileIndex, false, www.error);
-                        // wwwを解放する
-                        www.Dispose();
-                        throw new Exception("WWW download had an error:" + www.error + "\nURL : " + url);
-                    }
-                    // ロードしたアセットバンドルをセット
-                    AssetBundle bundle = ((DownloadHandlerAssetBundle)www.downloadHandler).assetBundle;
-                    bundleDic.Add(assetBundleNames[fileIndex], bundle);
+                // エラー処理
+                if (!string.IsNullOrEmpty(www.error))
+                {
+                    // 完了通知
+                    update(www.downloadProgress, fileIndex, false, www.error);
                     // wwwを解放する
                     www.Dispose();
+                    throw new Exception("WWW download had an error:" + www.error);
                 }
+                // ロードしたアセットバンドルをセット
+                AssetBundle bundle = DownloadHandlerAssetBundle.GetContent(www);
+                bundleDic.Add(assetBundleNames[fileIndex], bundle);
+                // wwwを解放する
+                www.Dispose();
             }
         } while (++fileIndex < assetBundleNames.Length);
 

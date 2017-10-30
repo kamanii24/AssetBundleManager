@@ -25,19 +25,22 @@ public class AssetbundlesMenuItems
 	{
 		BuildScript.BuildPlayer();
 	}
-	
-	[MenuItem(kCompressionMenu)]
-    static public void LZ4Compression()
+
+    [MenuItem("AssetBundles/Build AssetBundles/LZMA", false, 1)]
+    static public void BuildForLZMACompression()
     {
-        var @checked = Menu.GetChecked(kCompressionMenu);
-        Menu.SetChecked(kCompressionMenu, !@checked);
+        BuildScript.BuildAssetBundles(BuildScript.CompressionType.LZMA);
     }
 
-
-    [MenuItem("AssetBundles/Build AssetBundles")]
-    static public void BuildAssetBundles()
+    [MenuItem("AssetBundles/Build AssetBundles/LZ4", false, 2)]
+    static public void BuildForLZ4Compression()
     {
-        BuildScript.lz4Complession = Menu.GetChecked(kCompressionMenu);
-        BuildScript.BuildAssetBundles();
+        BuildScript.BuildAssetBundles(BuildScript.CompressionType.LZ4);
+    }
+
+    [MenuItem("AssetBundles/Build AssetBundles/UnCompress", false, 3)]
+    static public void BuildForUnCompression()
+    {
+        BuildScript.BuildAssetBundles(BuildScript.CompressionType.Uncompress);
     }
 }
