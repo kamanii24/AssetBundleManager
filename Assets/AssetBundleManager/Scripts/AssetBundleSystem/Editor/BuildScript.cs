@@ -8,6 +8,7 @@ using System.IO;
 public class BuildScript
 {
 	const string kAssetBundlesOutputPath = "AssetBundles";
+	public static bool lz4Complession = false;
 
 	public static void BuildAssetBundles()
 	{
@@ -16,7 +17,16 @@ public class BuildScript
 		if (!Directory.Exists(outputPath) )
 			Directory.CreateDirectory (outputPath);
 
-		BuildPipeline.BuildAssetBundles (outputPath, 0, EditorUserBuildSettings.activeBuildTarget);
+        if (lz4Complession)
+		{
+			Debug.Log("LZ4 Compression Build.");
+            BuildPipeline.BuildAssetBundles(outputPath, BuildAssetBundleOptions.ChunkBasedCompression, EditorUserBuildSettings.activeBuildTarget);
+		}
+        else
+		{
+            Debug.Log("LZMA Compression Build.");
+            BuildPipeline.BuildAssetBundles(outputPath, BuildAssetBundleOptions.None, EditorUserBuildSettings.activeBuildTarget);
+		}
 	}
 
 	public static void BuildPlayer()
@@ -57,10 +67,12 @@ public class BuildScript
 		case BuildTarget.StandaloneOSXIntel64:
 		case BuildTarget.StandaloneOSXUniversal:
 			return "/test.app";
-		case BuildTarget.WebPlayer:
+#if !UNITY_2017_1_OR_NEWER
+        case BuildTarget.WebPlayer:
 		case BuildTarget.WebPlayerStreamed:
 			return "";
 			// Add more build targets for your own.
+#endif
 		default:
 			Debug.Log("Target not implemented.");
 			return null;

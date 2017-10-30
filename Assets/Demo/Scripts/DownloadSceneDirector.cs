@@ -23,14 +23,14 @@ public class DownloadSceneDirector : MonoBehaviour
         // AssetBundleキャッシュを削除
         if (isCleanCache)
         {
-            Caching.CleanCache ();
+            Caching.ClearCache();
         }
 
         // ダウンロード開始 ====
         // アセットバンドルマネージャインスタンス取得
         AssetBundleManager bundleMng = AssetBundleManager.Instance;
         // 初期値設定
-        bundleMng.Initialize("https://cs-reporters.s3.amazonaws.com/apps/test/assetbundles/OSX/", 1);
+        bundleMng.Initialize("https://cs-reporters.s3.amazonaws.com/apps/test/assetbundles/iOS/");
         // ダウンロード開始
         bundleMng.DownloadAssetBundle(bundleNames, OnDownloading);
 
