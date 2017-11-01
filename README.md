@@ -1,4 +1,4 @@
-# AssetBundleManager
+# AssetBundleManager v1.2.0
 アセットバンドルに関する必要な処理をまとめたサンプルプロジェクトです。  
 *DownloadScene*、*MainScene*の2シーン構造です。
 *DownloadScene*でサーバからアセットバンドルをダウンロード後、*MainScene*で取得したアセットを表示します。  
@@ -14,7 +14,7 @@
 バージョン指定は任意です。
 一度設定すれば以降、値の変更しない限り設定する必要はありません。
 
-`AssetBundleManager.Instance.Initialize (bundleDirURL, 1);`
+`AssetBundleManager.Initialize (bundleDirURL, 1);`
 
 <br>
 
@@ -23,7 +23,7 @@
 コールバックデリゲートでダウンロードの進捗値を取得できます。
 
     string[] bundleNames = { bundle_1, bundle_2, bundle_3 };
-    AssetBundleManager.Instance.DownloadAssetBundle (bundleNames, ((float progress, int fileIndex, bool isComplete, string error) => {
+    AssetBundleManager.DownloadAssetBundle (bundleNames, ((float progress, int fileIndex, bool isComplete, string error) => {
         // エラー処理
         if (error != null) {
             Debug.Log("ダウンロードエラー");
@@ -46,7 +46,7 @@
 ロードの完了通知はコールバックデリゲートで受け取れます。
 
     string[] bundleNames = { bundle_1, bundle_2 };
-    AssetBundleManager.Instance.LoadAssetBundle (bundleNames, ((bool isSuccess, string error) => {
+    AssetBundleManager.LoadAssetBundle (bundleNames, ((bool isSuccess, string error) => {
        if (isSuccess) {
            Debug.Log("ロード成功");
         }
@@ -63,11 +63,11 @@
 
 *型指定なし*<br>
 
-    Object obj = AssetBundleManager.Instance.GetAsset (bundleName, assetName);
+    Object obj = AssetBundleManager.GetAsset (bundleName, assetName);
 
 *ジェネリック型指定*<br>
 
-    AudioClip clip = AssetBundleManager.Instance.GetAsset<AudioClip> (bundleName, assetName);
+    AudioClip clip = AssetBundleManager.GetAsset<AudioClip> (bundleName, assetName);
 
 *非同期*<br>
 
@@ -89,15 +89,19 @@
 #### アセットバンドルを破棄する<br>
 ロードしたアセットバンドルは明示的に破棄するまでメモリに保持され続けるため、不要になったアセットバンドルは**Unload**で破棄する必要があります。
 
-    AssetBundleManager.Instance.Unload();
+    AssetBundleManager.Unload();
 
 アセットバンドル名を指定して個別に破棄することも可能です。
 
-    AssetBundleManager.Instance.Unload(bundleName);
+    AssetBundleManager.Unload(bundleName);
 
 <br>
 
 ## リリースノート
+#### - 2017/11/1
+* **AssetBundleManagerをstaticクラスへ変更**<br>
+前回のバージョンから使用されていた場合はInstanceを外してください。
+
 #### - 2017/10/30
 * **AssetBundleのダウンロード処理をWWWからUnityWebRequestへ変更**<br>
 

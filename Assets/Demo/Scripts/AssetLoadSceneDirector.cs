@@ -10,10 +10,9 @@ public class AssetLoadSceneDirector : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		// アセットバンドルマネージャーインスタンス取得
-		bundleMng = AssetBundleManager.Instance;
 		// キャッシュから読み込み
 		string[] bundleNames = { "unitychan_std", "unitychan_crs", "unitychan_baseassets" };
-		bundleMng.LoadAssetBundle (bundleNames, ((bool isSuccess, string error) => {
+		AssetBundleManager.LoadAssetBundle (bundleNames, ((bool isSuccess, string error) => {
 			if (isSuccess) {
 				isButtonEnabled = true;
 				Debug.Log("ロード成功");
@@ -38,13 +37,13 @@ public class AssetLoadSceneDirector : MonoBehaviour {
 
 			if (assetName == "UnityChan_Std") {
 				// 同期でモデルロード
-				GameObject obj = bundleMng.GetAsset<GameObject> ("unitychan_std", assetName) as GameObject;
+				GameObject obj = AssetBundleManager.GetAsset<GameObject> ("unitychan_std", assetName) as GameObject;
 				// モデル表示
 				model = Instantiate (obj, Vector3.zero, Quaternion.identity) as GameObject;
 			}
 			else if (assetName == "UnityChan_Crs") {
 				// 非同期でモデルをロード
-				bundleMng.GetAssetAsync ("unitychan_crs", assetName, ((Object asset, bool isSuccess) => {
+				AssetBundleManager.GetAssetAsync ("unitychan_crs", assetName, ((Object asset, bool isSuccess) => {
 					if (isSuccess) {
 						// モデル表示
 						model = Instantiate ((GameObject)asset, Vector3.zero, Quaternion.identity) as GameObject;

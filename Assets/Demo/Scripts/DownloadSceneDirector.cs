@@ -29,12 +29,10 @@ public class DownloadSceneDirector : MonoBehaviour
         }
 
         // ダウンロード開始 ====
-        // アセットバンドルマネージャインスタンス取得
-        AssetBundleManager bundleMng = AssetBundleManager.Instance;
         // 初期値設定
-        bundleMng.Initialize(baseURL);
+        AssetBundleManager.Initialize(baseURL);
         // ダウンロード開始
-        bundleMng.DownloadAssetBundle(bundleNames, OnDownloading);
+        AssetBundleManager.DownloadAssetBundle(bundleNames, OnDownloading);
 
         // リトライボタンを無効化
         retryBtn.SetActive(false);
