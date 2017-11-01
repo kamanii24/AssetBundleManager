@@ -87,8 +87,7 @@ public class DownloadSceneDirector : MonoBehaviour
             StartCoroutine(WaitForScene());
         }
     }
-
-
+    
     // 遅延処理
     IEnumerator WaitForScene()
     {

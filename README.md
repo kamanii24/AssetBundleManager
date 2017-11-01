@@ -1,4 +1,4 @@
-# AssetBundleManager v1.2.0
+# AssetBundleManager v1.2.1
 アセットバンドルに関する必要な処理をまとめたサンプルプロジェクトです。  
 *DownloadScene*、*MainScene*の2シーン構造です。
 *DownloadScene*でサーバからアセットバンドルをダウンロード後、*MainScene*で取得したアセットを表示します。  
@@ -98,6 +98,9 @@
 <br>
 
 ## リリースノート
+#### - 2017/11/2
+* **Unity2017.1以降のバージョンでCaching.ClearAllCachedVersionsを追加**<br>
+
 #### - 2017/11/1
 * **AssetBundleManagerをstaticクラスへ変更**<br>
 前回のバージョンから使用されていた場合はInstanceを外してください。
@@ -140,7 +143,7 @@ AssetBundleManagerのメソッドをコールしたタイミングで初期化�
 Unity 2017.2.0f3<br>
 macOS High Sierra 10.13
 
-<br><br><br>
+<br><br>
 ## Unity-Chan ライセンス
 本リポジトリには、UnityChanがAssetsとして含まれています。 以下のライセンスに従います。
 
