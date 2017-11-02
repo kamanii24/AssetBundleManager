@@ -440,7 +440,7 @@ public class AssetBundleManager : MonoBehaviour
                         PlayerPrefs.SetString(key, latestCRC.ToString()); // 新しいcrcを保存
                         Caching.ClearAllCachedVersions(bundleName); // 既存のキャッシュを削除
                     }
-                    Debug.Log(bundleName + ".manifest \n"+"Latesd CRC : " + latestCRC + "  Current CRC: " + currentCRC);
+                    Debug.Log(bundleName + ".manifest \n"+"Latest CRC : " + latestCRC + "  Current CRC: " + currentCRC);
                 }
                 else
                 {
