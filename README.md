@@ -99,10 +99,10 @@
 #### 暗号化したAssetBundleをビルドする<br>
 Unityのメニューバー *AssetBundles/Open Config* を選択し、暗号化のためのキー文字列を設定します。<br>
 Saltは8文字以上である必要があります。<br>
-[Imgur](https://i.imgur.com/rRgdUCq.png)<br>
+![Imgur](https://i.imgur.com/rRgdUCq.png)<br>
 
 キー文字列の設定後、*AssetBundles/Enable AES Cryption* にチェックをつけて *Build AssetBundles* でビルドします。<br>
-[Imgur](https://i.imgur.com/X8Oc34r.png)<br>
+![Imgur](https://i.imgur.com/X8Oc34r.png)<br>
 
 暗号化されたAssetBundleもダウンロード時に自動的に復号され、通常のAssetBundleと同等に扱うことができます。<br>
 
