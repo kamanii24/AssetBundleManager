@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEditor;
 using UnityEditor.Callbacks;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -8,30 +9,29 @@ using System.IO;
 public class BuildScript
 {
     const string kAssetBundlesOutputPath = "AssetBundles";
-    public enum CompressionType { Uncompress, LZMA, LZ4 }
 
-    public static void BuildAssetBundles(CompressionType compressionType = CompressionType.LZMA)
+    // 暗号化
+    public static bool isAESCryption = false;
+
+    public static void BuildAssetBundles(BuildAssetBundleOptions buildOptions = BuildAssetBundleOptions.None)
     {
+        // 暗号化AssetBundle生成処理
+        if (isAESCryption)
+        {
+            Debug.Log("AES Cryption Building.");
+            BuildAssetBundlesForAES(buildOptions);
+            return;
+        }
+        else
+        {
+            Debug.Log("Standard Building.");
+        }
+
         // Choose the output path according to the build target.
         string outputPath = Path.Combine(kAssetBundlesOutputPath, BaseLoader.GetPlatformFolderForAssetBundles(EditorUserBuildSettings.activeBuildTarget));
         if (!Directory.Exists(outputPath))
             Directory.CreateDirectory(outputPath);
 
-        BuildAssetBundleOptions buildOptions = BuildAssetBundleOptions.None;
-        switch (compressionType)
-        {
-            case CompressionType.Uncompress:
-                buildOptions = BuildAssetBundleOptions.UncompressedAssetBundle;
-                Debug.Log("Uncompression Build.");
-                break;
-            case CompressionType.LZ4:
-                buildOptions = BuildAssetBundleOptions.ChunkBasedCompression;
-                Debug.Log("LZ4 Compression Build.");
-                break;
-            default:
-                Debug.Log("LZMA Compression Build.");
-				break;
-        }
         BuildPipeline.BuildAssetBundles(outputPath, buildOptions, EditorUserBuildSettings.activeBuildTarget);
     }
 
@@ -71,7 +71,7 @@ public class BuildScript
                 return "/test.exe";
             case BuildTarget.StandaloneOSXIntel:
             case BuildTarget.StandaloneOSXIntel64:
-            case BuildTarget.StandaloneOSXUniversal:
+            case BuildTarget.StandaloneOSX:
                 return "/test.app";
 #if !UNITY_2017_1_OR_NEWER
         case BuildTarget.WebPlayer:
@@ -116,5 +116,151 @@ public class BuildScript
         }
 
         return levels.ToArray();
+    }
+
+
+    /// <summery>
+    /// 暗号化AssetBundle生成
+    /// </summery>
+    public static void BuildAssetBundlesForAES(BuildAssetBundleOptions buildOptions = BuildAssetBundleOptions.None)
+    {
+        // Resourcesから暗号化キーを取得
+        AESConfig config = Resources.Load<AESConfig>("AESConfig");
+
+
+        // ------------
+        // 暗号化情報が正しいか確認
+
+        if (config == null)
+        {
+            Debug.LogError("Dosen't find \"AESConfig.asset\".");
+            return;
+        }
+        else if (string.IsNullOrEmpty(config.Password) || string.IsNullOrEmpty(config.Salt))
+        {
+            Debug.LogError("Please set AES Password and Salt. AES configuration menu is [AssetBundles/Open AES Config]");
+            return;
+        }
+        else if (config.Salt.Length < 8)
+        {
+            Debug.LogError("AES Salt is must over 8 chars.");
+            return;
+        }
+        // ------------
+
+
+        // 一時ディレクトリ作成
+        string dirName = "____CryptingABs";
+        string tmpPath = "Assets/" + dirName;
+        if (!Directory.Exists(tmpPath))
+        {
+            // 作成
+            Directory.CreateDirectory(tmpPath);
+        }
+        // フォルダの中身が存在していた場合は削除
+        else if (Directory.GetFileSystemEntries(tmpPath).Length > 0)
+        {
+            DeleteTemporaryFiles(tmpPath, true);
+        }
+
+        // AssetBundleBuild 1回目    
+        BuildPipeline.BuildAssetBundles(tmpPath, buildOptions, EditorUserBuildSettings.activeBuildTarget);
+
+
+        // ------------
+        // 書き出されたAssetBundleに暗号化を施す処理
+
+        // 保存したファイル一覧を取得
+        string[] files = Directory.GetFiles(tmpPath);
+
+        // AssetBundleのリネーム処理
+        foreach (string str in files)
+        {
+            // AssetBundle本体に.bytes拡張子を付与しつつ、不要ファイルを削除
+            if (!(str.Contains(".manifest") || str.Contains(".meta")))
+            {
+                // ディレクトリ名と同じファイル (____CryptingABs) だった場合は削除
+                string[] s = str.Split('/');
+                if (s[s.Length - 1] == dirName)
+                {
+                    File.Delete(str);
+                }
+                else
+                {
+                    File.Move(str, str + ".bytes"); // リネーム
+                }
+            }
+            else
+            {
+                File.Delete(str);   // 削除
+            }
+        }
+        // 再度、AssetBundle全ファイルのパスを取得        
+        files = Directory.GetFiles(tmpPath);
+
+        // ------------
+        // 書き出されたAssetBundleを暗号化して、再度暗号化済みAssetBundleを書き出す処理
+
+        AssetBundleBuild[] buildMap = new AssetBundleBuild[files.Length];
+        // 暗号化処理実行
+        for (int i = 0; i < files.Length; i++)
+        {
+            string file = files[i];
+
+            // 暗号化符号作成
+            string[] s = file.Split('/');
+            string cryptoSign = Path.Combine(tmpPath, AssetBundleManager.CRYPTO_SIGN + s[s.Length - 1]);
+            StreamWriter sign = File.CreateText(cryptoSign);
+            sign.Close();
+
+            byte[] plain = File.ReadAllBytes(file);         // byteデータ取得
+            byte[] encData = AESCryption.Encryption(plain); // 暗号化
+            File.WriteAllBytes(file, encData);              // 暗号化済みAssetBundleを書き出す
+
+            // BuildMap設定
+            string[] str = file.Split(new Char[] { '/', '.' });
+            string name = str[str.Length - 2];
+            Debug.Log("BuildTargetAsset : " + name);
+
+            buildMap[i].assetBundleName = name;
+            buildMap[i].assetNames = new string[] { file, cryptoSign };
+        }
+
+        // 一度プロジェクトをリセットして、暗号化したAssetBundleを反映させる
+        AssetDatabase.Refresh();
+
+        // 暗号化済みAssetBundle保存パス
+        string absOutputPath = Path.Combine(kAssetBundlesOutputPath, BaseLoader.GetPlatformFolderForAssetBundles(EditorUserBuildSettings.activeBuildTarget));
+        if (!Directory.Exists(absOutputPath))
+            Directory.CreateDirectory(absOutputPath);
+
+        // AssetBundleBuild 2回目
+        BuildPipeline.BuildAssetBundles(absOutputPath, buildMap, buildOptions, EditorUserBuildSettings.activeBuildTarget);
+
+        // 一時ファイルの削除
+        DeleteTemporaryFiles(tmpPath);
+        // 完了
+        AssetDatabase.Refresh();
+
+        Debug.Log("Successful creation of encrypted AssetBundles.");
+    }
+
+
+    // 一時ファイルの削除
+    private static void DeleteTemporaryFiles(string tmpPath, bool isEntriesOnly = false)
+    {
+        // ディレクトリ以外の全ファイルを削除
+        string[] filePaths = Directory.GetFiles(tmpPath);
+        foreach (string p in filePaths)
+        {
+            File.SetAttributes(p, FileAttributes.Normal);
+            File.Delete(p);
+        }
+
+        if (!isEntriesOnly) // ディレクトリの中身のみ削除したいかどうか
+        {
+            // 中が空になったらディレクトリ自身も削除
+            Directory.Delete(tmpPath, false);
+        }
     }
 }

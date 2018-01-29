@@ -95,6 +95,6 @@ public class DownloadSceneDirector : MonoBehaviour
         yield return new WaitForSeconds(1f);
 
         // 遷移
-        SceneManager.LoadScene ("MainScene");
+        SceneManager.LoadScene ("AssetBundleScene");
     }
 }

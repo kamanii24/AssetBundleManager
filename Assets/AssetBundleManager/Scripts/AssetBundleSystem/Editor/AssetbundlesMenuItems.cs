@@ -4,10 +4,41 @@ using System.Collections;
 
 public class AssetbundlesMenuItems
 {
+    const string kAESCryptionMenu = "AssetBundles/Enable AES Cryption";
+    const string kAESCryptionConfigMenu = "AssetBundles/Open Config";
 	const string kSimulateAssetBundlesMenu = "AssetBundles/Simulate AssetBundles";
-    const string kCompressionMenu = "AssetBundles/LZ4 Compression";
 
-	[MenuItem(kSimulateAssetBundlesMenu)]
+    // 暗号化するかどうか
+    [MenuItem(kAESCryptionMenu, false, 20)]
+    public static void ToggleAESCryption()
+    {
+        BuildScript.isAESCryption = !BuildScript.isAESCryption;
+    }
+
+	[MenuItem(kAESCryptionMenu, true)]
+    public static bool ToggleAESCryptionValidate()
+    {
+        Menu.SetChecked(kAESCryptionMenu, BuildScript.isAESCryption);
+        return true;
+    }
+
+    // 暗号情報設定アセットピックアップ
+    [MenuItem(kAESCryptionConfigMenu, false, 21)]
+    static void SelectionAsset()
+    {
+        var guids = AssetDatabase.FindAssets("t:AESConfig");
+        if (guids.Length == 0)
+        {
+            throw new System.IO.FileNotFoundException("AESConfig does not found");
+        }
+
+        var path = AssetDatabase.GUIDToAssetPath(guids[0]);
+        var obj = AssetDatabase.LoadAssetAtPath<AESConfig>(path);
+        EditorGUIUtility.PingObject(obj);
+        Selection.activeObject = obj;
+    }
+
+    [MenuItem(kSimulateAssetBundlesMenu)]
 	public static void ToggleSimulateAssetBundle ()
 	{
 		AssetBundleAdapter.SimulateAssetBundleInEditor = !AssetBundleAdapter.SimulateAssetBundleInEditor;
@@ -26,21 +57,21 @@ public class AssetbundlesMenuItems
 		BuildScript.BuildPlayer();
 	}
 
-    [MenuItem("AssetBundles/Build AssetBundles/LZMA", false, 1)]
+    [MenuItem("AssetBundles/Build AssetBundles/LZMA (High Compressed)", false, 1)]
     static public void BuildForLZMACompression()
     {
-        BuildScript.BuildAssetBundles(BuildScript.CompressionType.LZMA);
+        BuildScript.BuildAssetBundles();
     }
 
-    [MenuItem("AssetBundles/Build AssetBundles/LZ4", false, 2)]
+    [MenuItem("AssetBundles/Build AssetBundles/LZ4 (Low Compressed)", false, 2)]
     static public void BuildForLZ4Compression()
     {
-        BuildScript.BuildAssetBundles(BuildScript.CompressionType.LZ4);
+        BuildScript.BuildAssetBundles(BuildAssetBundleOptions.ChunkBasedCompression);
     }
 
     [MenuItem("AssetBundles/Build AssetBundles/UnCompress", false, 3)]
     static public void BuildForUnCompression()
     {
-        BuildScript.BuildAssetBundles(BuildScript.CompressionType.Uncompress);
+        BuildScript.BuildAssetBundles(BuildAssetBundleOptions.UncompressedAssetBundle);
     }
 }

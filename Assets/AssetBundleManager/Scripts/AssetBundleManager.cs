@@ -1,8 +1,9 @@
-﻿// ========
-// AssetBundleManager.cs
-// v1.2.1
-// Created by kamanii24
-// ========
+﻿// =================================
+//
+//  AssetBundleManager.cs
+//	Created by Takuya Himeji
+//
+// =================================
 
 using System;
 using System.Collections;
@@ -23,6 +24,14 @@ public class AssetBundleManager : MonoBehaviour
     public delegate void OnAsyncLoadAssetComplete(UnityEngine.Object asset, bool isSuccess);
 
     #endregion CALLBACK_DELEGATE
+
+
+    // ========
+    #region PUBLIC_CONST_MEMBER_VARIABLES
+
+    public const string CRYPTO_SIGN = "____cryptosign____";
+
+    #endregion PUBLIC_CONST_MEMBER_VARIABLES
 
 
     // ========
@@ -440,7 +449,7 @@ public class AssetBundleManager : MonoBehaviour
                         PlayerPrefs.SetString(key, latestCRC.ToString()); // 新しいcrcを保存
                         Caching.ClearAllCachedVersions(bundleName); // 既存のキャッシュを削除
                     }
-                    Debug.Log(bundleName + ".manifest \n"+"Latest CRC : " + latestCRC + "  Current CRC: " + currentCRC);
+                    Debug.Log("[" + bundleName + ".manifest] \n"+"Latest CRC : " + latestCRC + "  Current CRC: " + currentCRC);
                 }
                 else
                 {
@@ -484,6 +493,13 @@ public class AssetBundleManager : MonoBehaviour
                 }
                 // ロードしたアセットバンドルをセット
                 AssetBundle bundle = DownloadHandlerAssetBundle.GetContent(www);
+
+                // AssetBundle内部に同名のCRYPTO_SIGNがあった場合、暗号化Assetと判断して復号する
+                if (bundle.Contains(CRYPTO_SIGN+bundle.name))
+                {
+                    bundle = DecryptingAssetBundle(bundle);
+                    yield return bundle;
+                }
                 bundleDic.Add(bundleName, bundle);
                 // wwwを解放する
                 www.Dispose();
@@ -507,6 +523,27 @@ public class AssetBundleManager : MonoBehaviour
 
         // 取得成功
         cb(request.asset, true);
+    }
+
+    // AssetBundleの復号化
+    private static AssetBundle DecryptingAssetBundle(AssetBundle bundle)
+    {
+        TextAsset textAsset = bundle.LoadAsset<TextAsset>(bundle.name);
+        
+        // nullチェック
+        if(textAsset == null)
+        {
+            Debug.Log("[" + bundle.name + "]" + " inner asset is Null.");
+            return bundle;
+        }
+
+        bundle.Unload(false);
+        
+        byte[] decrypt = AESCryption.Decryption(textAsset.bytes);
+        AssetBundle decryptBundle = AssetBundle.LoadFromMemory(decrypt);
+
+        Debug.Log("[" + decryptBundle.name  + "]" + " is decryped.");
+        return decryptBundle;
     }
 
     #endregion PRIVATE_CORUTINE_METHOD

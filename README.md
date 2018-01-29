@@ -1,4 +1,4 @@
-# AssetBundleManager v1.2.1
+# AssetBundleManager v1.3.0
 アセットバンドルに関する必要な処理をまとめたサンプルプロジェクトです。  
 *DownloadScene*、*MainScene*の2シーン構造です。
 *DownloadScene*でサーバからアセットバンドルをダウンロード後、*MainScene*で取得したアセットを表示します。  
@@ -95,9 +95,23 @@
 
     AssetBundleManager.Unload(bundleName);
 
+
+#### 暗号化したAssetBundleをビルドする<br>
+Unityのメニューバー *AssetBundles/Open Config* を選択し、暗号化のためのキー文字列を設定します。<br>
+Saltは8文字以上である必要があります。<br>
+[Imgur](https://i.imgur.com/rRgdUCq.png)<br>
+
+キー文字列の設定後、*AssetBundles/Enable AES Cryption* にチェックをつけて *Build AssetBundles* でビルドします。<br>
+[Imgur](https://i.imgur.com/X8Oc34r.png)<br>
+
+暗号化されたAssetBundleもダウンロード時に自動的に復号され、通常のAssetBundleと同等に扱うことができます。<br>
+
 <br>
 
 ## リリースノート
+#### - 2018/1/29
+* **AESによるAssetBundleの暗号化機能の追加**<br>
+
 #### - 2017/11/2
 * **Unity2017.1以降のバージョンでCaching.ClearAllCachedVersionsを追加**<br>
 
