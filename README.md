@@ -1,18 +1,18 @@
 # AssetBundleManager v1.3.0
 #### 含まれている機能
-- AssetBundleのダウンロード
+- AssetBundleのダウンロード・差分更新
 - AssetBundleビルド時に圧縮形式の選択(LZMA, LZ4, 非圧縮)
 - AESによるAssetBundleの暗号化・復号化
 
 #### プロジェクトの概要
-アセットバンドルに関する必要な処理をまとめたサンプルプロジェクトです。  
+AssetBundleに関する必要な処理をまとめたサンプルプロジェクトです。  
 *DownloadScene*、*AssetBundleScene*の2シーン構造です。
-*DownloadScene*でサーバからアセットバンドルをダウンロード後、*AssetBundleScene*で取得したアセットを表示します。  
-*※サンプルでダウンロードするアセットバンドルにユニティちゃんアセットを使用しています。*
+*DownloadScene*でサーバからAssetBundleをダウンロード後、*AssetBundleScene*で取得したアセットを表示します。  
+*※サンプルでダウンロードするAssetBundleにユニティちゃんアセットを使用しています。*
 
 # 使い方
 #### 初期設定<br>
-初回に**Initialize**をコールし、アセットバンドルが含まれるサーバ上のディレクトリとアセットバンドルのバージョンを指定します。
+初回に**Initialize**をコールし、AssetBundleが含まれるサーバ上のディレクトリとAssetBundleのバージョンを指定します。
 バージョン指定は任意です。
 一度設定すれば以降、値の変更しない限り設定する必要はありません。
 
@@ -20,8 +20,8 @@
 
 <br>
 
-#### アセットバンドルのダウンロード<br>
-**DownloadAssetBundle**でダウンロードするアセットバンドル名を指定します。  
+#### AssetBundleのダウンロード<br>
+**DownloadAssetBundle**でダウンロードするAssetBundle名を指定します。  
 コールバックデリゲートでダウンロードの進捗値を取得できます。
 
     string[] bundleNames = { bundle_1, bundle_2, bundle_3 };
@@ -43,8 +43,8 @@
 
 <br>
 
-#### アセットバンドルのロード<br>
-**LoadAssetBundle**でロードするアセットバンドル名を指定します。  
+#### AssetBundleのロード<br>
+**LoadAssetBundle**でロードするAssetBundle名を指定します。  
 ロードの完了通知はコールバックデリゲートで受け取れます。
 
     string[] bundleNames = { bundle_1, bundle_2 };
@@ -60,7 +60,7 @@
 <br>
 
 #### アセットの取得<br>
-ロードしたアセットバンドルから必要なアセットを取得するには**GetAsset**に取得したいアセット名と、それが含まれるアセットバンドル名をしていします。  
+ロードしたAssetBundleから必要なアセットを取得するには**GetAsset**に取得したいアセット名と、それが含まれるAssetBundle名をしていします。  
 取得したアセットはObject型なので適当な型にキャストします。<br>
 
 *型指定なし*<br>
@@ -81,19 +81,19 @@
 
 <br>
 
-#### ロードされているアセットバンドルを確認する<br>
-**GetAllAssetBundleName**で現在ロードされているアセットバンドルをstring配列で全て取得できます。
+#### ロードされているAssetBundleを確認する<br>
+**GetAllAssetBundleName**で現在ロードされているAssetBundleをstring配列で全て取得できます。
 
     string[] bundles = GetAllAssetBundleName();
 
 <br>
 
-#### アセットバンドルを破棄する<br>
-ロードしたアセットバンドルは明示的に破棄するまでメモリに保持され続けるため、不要になったアセットバンドルは**Unload**で破棄する必要があります。
+#### AssetBundleを破棄する<br>
+ロードしたAssetBundleは明示的に破棄するまでメモリに保持され続けるため、不要になったAssetBundleは**Unload**で破棄する必要があります。
 
     AssetBundleManager.Unload();
 
-アセットバンドル名を指定して個別に破棄することも可能です。
+AssetBundle名を指定して個別に破棄することも可能です。
 
     AssetBundleManager.Unload(bundleName);
 
@@ -144,15 +144,15 @@ GetAsset<T>で取得できるオブジェクトを型指定できるようにな
 #### - 2016/1/28<br>
 * **オーバーロードメソッドの追加**<br>
 DonwloadAssetBundleとLoadAssetBundleに配列ではないstring変数として引数に渡すことができるオーバーロードメソッドを追加しました。<br>
-これにより単一のアセットバンドルの読み込みがより効率化します。
+これにより単一のAssetBundleの読み込みがより効率化します。
 
 * **初期化チェック**<br>
 AssetBundleManagerのメソッドをコールしたタイミングで初期化チェックが行われるようになりました。
 初期化が行われずに各メソッドが実行された場合は警告がコンソールに出力されます。
 
 #### - 2015/10/27<br>
-* **CRCを照合して更新されたアセットバンドルのみをダウンロードされる機能の追加**<br>
-アセットバンドルのビルド時に生成される.manifestファイルをアセットバンドル本体と併せて同ディレクトリに置くことで、アセットバンドルのダウンロード実行時に更新されたアセットバンドルのみをダウンロードされるように改修しました。<br>
+* **CRCを照合して更新されたAssetBundleのみをダウンロードされる機能の追加**<br>
+AssetBundleのビルド時に生成される.manifestファイルをAssetBundle本体と併せて同ディレクトリに置くことで、AssetBundleのダウンロード実行時に更新されたAssetBundleのみをダウンロードされるように改修しました。<br>
 指定ディレクトリに.manifestファイルがない場合は以前の通りCRCの照合なしで実行されます。
 
 ## ビルド環境
