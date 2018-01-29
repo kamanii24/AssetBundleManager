@@ -1,12 +1,14 @@
 # AssetBundleManager v1.3.0
-アセットバンドルに関する必要な処理をまとめたサンプルプロジェクトです。  
-*DownloadScene*、*MainScene*の2シーン構造です。
-*DownloadScene*でサーバからアセットバンドルをダウンロード後、*MainScene*で取得したアセットを表示します。  
+#### 含まれている機能
+- AssetBundleのダウンロード
+- AssetBundleビルド時に圧縮形式の選択(LZMA, LZ4, 非圧縮)
+- AESによるAssetBundleの暗号化・復号化
+
+#### プロジェクトの概要
+アセットバンドルに関する必要な処理をまとめたサンプルプロジェクトです。  
+*DownloadScene*、*AssetBundleScene*の2シーン構造です。
+*DownloadScene*でサーバからアセットバンドルをダウンロード後、*AssetBundleScene*で取得したアセットを表示します。  
 *※サンプルでダウンロードするアセットバンドルにユニティちゃんアセットを使用しています。*
-
-#### 自プロジェクトでの使用
-**AssetBundleManager.unitypackage**を自プロジェクトへインポートしてお使いください。
-
 
 # 使い方
 #### 初期設定<br>
@@ -154,8 +156,8 @@ AssetBundleManagerのメソッドをコールしたタイミングで初期化�
 指定ディレクトリに.manifestファイルがない場合は以前の通りCRCの照合なしで実行されます。
 
 ## ビルド環境
-Unity 2017.2.0f3<br>
-macOS High Sierra 10.13
+Unity 2017.3.0p3<br>
+macOS High Sierra 10.13.3
 
 <br><br>
 ## Unity-Chan ライセンス
