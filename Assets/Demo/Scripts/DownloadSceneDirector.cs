@@ -62,6 +62,7 @@ public class DownloadSceneDirector : MonoBehaviour
 
             Debug.Log("ダウンロードエラー : " + error);
         }
+        Debug.Log("Progress : " + progress);
 
         // 進捗更新
         if (!isComplete)
@@ -74,6 +75,7 @@ public class DownloadSceneDirector : MonoBehaviour
             // ファイル数更新
             int index = fileIndex + 1;
             count.text = index + "/" + bundleNames.Length;
+
         }
         else
         {
@@ -86,6 +88,21 @@ public class DownloadSceneDirector : MonoBehaviour
             // ダウンロード完了テキストを見せるための遅延処理
             StartCoroutine(WaitForScene());
         }
+    }
+
+    public void Retry()
+    {
+        // リトライボタンアクティブ
+        retryBtn.SetActive(false);
+
+        // その他有効化
+        notice.text = "NOW LOADING";
+        count.enabled = true;
+        per.enabled = true;
+        progressImg.enabled = true;
+
+        // ダウンロード開始
+        AssetBundleManager.DownloadAssetBundle(bundleNames, OnDownloading);
     }
     
     // 遅延処理
