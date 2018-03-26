@@ -11,12 +11,17 @@ public class BuildScript
     const string kAssetBundlesOutputPath = "AssetBundles";
 
     // 暗号化
-    public static bool isAESCryption = false;
+    private const string KEY_AES_CRYPTION_EDITOR = "UseAESCryption";
+    public static bool IsAESCryption
+    {
+        get { return EditorPrefs.GetBool(KEY_AES_CRYPTION_EDITOR, false); }
+        set { EditorPrefs.SetBool(KEY_AES_CRYPTION_EDITOR, value); }
+    }
 
     public static void BuildAssetBundles(BuildAssetBundleOptions buildOptions = BuildAssetBundleOptions.None)
     {
         // 暗号化AssetBundle生成処理
-        if (isAESCryption)
+        if (IsAESCryption)
         {
             Debug.Log("AES Cryption Building.");
             BuildAssetBundlesForAES(buildOptions);

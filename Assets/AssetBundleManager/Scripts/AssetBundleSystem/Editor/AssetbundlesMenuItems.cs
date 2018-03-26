@@ -12,13 +12,13 @@ public class AssetbundlesMenuItems
     [MenuItem(kAESCryptionMenu, false, 20)]
     public static void ToggleAESCryption()
     {
-        BuildScript.isAESCryption = !BuildScript.isAESCryption;
+        BuildScript.IsAESCryption = !BuildScript.IsAESCryption;
     }
 
 	[MenuItem(kAESCryptionMenu, true)]
     public static bool ToggleAESCryptionValidate()
     {
-        Menu.SetChecked(kAESCryptionMenu, BuildScript.isAESCryption);
+        Menu.SetChecked(kAESCryptionMenu, BuildScript.IsAESCryption);
         return true;
     }
 
