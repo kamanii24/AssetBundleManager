@@ -1,4 +1,5 @@
-# AssetBundleManager v1.3.0
+# AssetBundleManager
+## v1.3.1
 #### 含まれている機能
 - AssetBundleのダウンロード・差分更新
 - AssetBundleビルド時に圧縮形式の選択(LZMA, LZ4, 非圧縮)
@@ -97,6 +98,7 @@ AssetBundle名を指定して個別に破棄することも可能です。
 
     AssetBundleManager.Unload(bundleName);
 
+<br>
 
 #### 暗号化したAssetBundleをビルドする<br>
 Unityのメニューバー *AssetBundles/Open Config* を選択し、暗号化のためのキー文字列を設定します。<br>
@@ -111,6 +113,9 @@ Saltは8文字以上である必要があります。<br>
 <br>
 
 ## リリースノート
+#### - 2018/3/26
+* **エディタメニューのEnable AES Cryptionのチェックがビルドをする度に外れる問題を修正**<br>
+
 #### - 2018/1/29
 * **AESによるAssetBundleの暗号化機能の追加**<br>
 
