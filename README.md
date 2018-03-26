@@ -1,5 +1,4 @@
 # AssetBundleManager
-## v1.3.1
 #### 含まれている機能
 - AssetBundleのダウンロード・差分更新
 - AssetBundleビルド時に圧縮形式の選択(LZMA, LZ4, 非圧縮)
