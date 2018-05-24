@@ -385,7 +385,7 @@ public class AssetBundleManager : MonoBehaviour
                 // キャッシュからアセットバンドルをロードする
                 UnityWebRequest www = UnityWebRequest.GetAssetBundle(urlList[index]);
                 // ロードを待つ
-                yield return www;
+                yield return www.SendWebRequest();
 
                 // エラー処理
                 if (www.error != null)
@@ -397,7 +397,7 @@ public class AssetBundleManager : MonoBehaviour
                 }
                 // ロードしたアセットバンドルをセット
                 AssetBundle bundle = DownloadHandlerAssetBundle.GetContent(www);
-                bundleDic.Add(assetBundleNames[fileIndex], bundle);
+                bundleDic.Add(assetBundleNames[index], bundle);
             }
         } while (++index < assetBundleNames.Length);
 
