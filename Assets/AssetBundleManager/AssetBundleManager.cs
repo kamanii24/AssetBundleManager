@@ -87,8 +87,6 @@ namespace KM2
             initialized = true;
             // URLとバージョンをセット
             AssetBundleDirectoryURL = assetBundleDirectoryURL;
-
-            Debug.Log(AssetBundleDirectoryURL);
         }
 
 

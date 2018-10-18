@@ -1,5 +1,9 @@
 # AssetBundleManager
 
+
+AssetBundleを使用するために必要な処理をシンプルに実装したスクリプトです。
+![Imgur](https://i.imgur.com/GD4U1oj.gif)
+
 ## 初期設定
 AssetBundleManagerを使用するクラスに using を追加します。
 
