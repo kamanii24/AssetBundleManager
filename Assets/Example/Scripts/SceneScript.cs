@@ -75,8 +75,19 @@ public class SceneScript : MonoBehaviour
         if (GUILayout.Button("Instantiate"))
         {
             // ロード処理
-            string name = bundleList[selGridInt];
-            GameObject go = AssetBundleManager.GetAsset<GameObject>(name, name);
+            string abName = bundleList[selGridInt];
+            string assetName = abName;
+            if(assetName.Contains("/"))     // 子階層になっている場合
+            {
+                string[] n = assetName.Split('/');
+                assetName = n[n.Length - 1];
+            }
+            else
+            {
+                assetName = abName;
+            }
+            GameObject go = AssetBundleManager.GetAsset<GameObject>(abName, assetName);
+
             // Instantiate
             InstantiateAsset(go);
         }
