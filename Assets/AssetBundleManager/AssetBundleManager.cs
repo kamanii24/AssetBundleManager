@@ -64,6 +64,7 @@ namespace KM2
 
 
         # region IMPLEMENTATION_FIELD
+        # region PUBLIC_METHODS
 
         /// <summary>
         /// AssetBundleManagerの初期設定をします。
@@ -363,6 +364,10 @@ namespace KM2
         }
 
 
+        #endregion PUBLIC_METHODS
+
+
+        #region  PRIVATE_METHODS
 
 
         // キャッシュからAssetBundleをロードする
@@ -623,5 +628,6 @@ namespace KM2
         }
     }
 
+    #endregion PRIVATE_METHODS
     #endregion IMPLEMENTATION_FIELD
 }
