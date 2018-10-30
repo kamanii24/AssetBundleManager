@@ -30,10 +30,8 @@ public class SceneScript : MonoBehaviour
     {
         if (clearAssetBundlesInCache) Caching.ClearCache();
 
-
         // AssetBundleManager初期化
         AssetBundleManager.Initialize(remoteLoadURL);
-
 
         // ダウンロード対象のAssetBundleのファイルサイズ
         #region ASSETBUNDLES_FILESIZE
@@ -135,6 +133,5 @@ public class SceneScript : MonoBehaviour
     {
         if(assetContainer != null) Destroy(assetContainer);
         assetContainer = Instantiate(go);
-
     }
 }

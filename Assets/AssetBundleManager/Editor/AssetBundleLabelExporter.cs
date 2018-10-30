@@ -16,7 +16,7 @@ namespace KM2
         /// <summary>
         /// AssetBundleラベルをcsvに書き出す
         /// </summary>
-        [MenuItem("Tools/AssetBundle Labels/Export", false)]
+        [MenuItem("AssetBundles/AssetBundle Labels/Export", false)]
         public static void ExportToCsv()
         {
             Export();

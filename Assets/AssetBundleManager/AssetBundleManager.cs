@@ -239,7 +239,7 @@ namespace KM2
         /// </summary>
         public static void GetAssetAsync(string bundleName, string assetName, AsyncAssetLoaded<Object> handler)
         {
-            GetAssetAsync(bundleName, assetName, handler);
+            GetAssetAsync<Object>(bundleName, assetName, handler);
         }
 
 
@@ -379,7 +379,7 @@ namespace KM2
             // ロードする
             List<AssetBundle> abList = new List<AssetBundle>();
             int index = 0;
-            do
+            while (++index < assetBundleNames.Length)
             {
                 // baseURLにAssetBuddle名を付与してURL生成
                 string bundleName = assetBundleNames[index];
@@ -389,27 +389,34 @@ namespace KM2
                 url = Path.Combine(url, bundleName);
 
                 // キャッシュからAssetBundleをロードする
-                UnityWebRequest www = UnityWebRequestAssetBundle.GetAssetBundle(url);
-                // ダウンロードを待つ
-                yield return www.SendWebRequest();
-
-                // エラー処理
-                if (www.error != null)
+#if UNITY_2018_1_OR_NEWER
+                using (UnityWebRequest www = UnityWebRequestAssetBundle.GetAssetBundle(url))
+#else
+                using (UnityWebRequest www = UnityWebRequest.GetAssetBundle(url))
+#endif
                 {
-                    if (handler != null) { handler(null, www.error); }  // ロード失敗
-                    www.Dispose();
-                    throw new System.Exception("error : " + www.error);
-                }
-                AssetBundle bundle = DownloadHandlerAssetBundle.GetContent(www);
-                Debug.Log("[" + bundle.name + "] load success.");
+                    // ダウンロードを待つ
+                    yield return www.SendWebRequest();
 
-                abList.Add(bundle);
-            } while (++index < assetBundleNames.Length);
+                    // エラー処理
+                    if (www.error != null)
+                    {
+                        if (handler != null) { handler(null, www.error); }  // ロード失敗
+                        www.Dispose();
+                        throw new System.Exception("error : " + www.error);
+                    }
+                    AssetBundle bundle = DownloadHandlerAssetBundle.GetContent(www);
+                    Debug.Log("[" + bundle.name + "] load success.");
+
+                    abList.Add(bundle);
+                }
+            }
 
             if (handler != null) handler(abList.ToArray(), null);
         }
 
-
+        public delegate AssetBundle Extention(AssetBundle assetBundle);
+        public static Extention extentionEvent;
 
         // 非同期でAssetを取得する
         private static IEnumerator AsyncLoadAsset<T>(AssetBundle bundle, string assetName, AsyncAssetLoaded<T> handler) where T : Object
@@ -437,7 +444,7 @@ namespace KM2
             assetBundleNames = RemoveAlreadyLoaded(assetBundleNames);
 
             // AssetBundleを全てダウンロードするまで回す
-            do
+            while (++fileIndex < assetBundleNames.Length)
             {
                 // baseURLにAssetBuddle名を付与してURL生成
                 string bundleName = assetBundleNames[fileIndex];
@@ -452,7 +459,11 @@ namespace KM2
                 uint crc = (uint)crcCheck.Current;
 
                 // ダウンロード開始
-                using (UnityWebRequest www = UnityWebRequestAssetBundle.GetAssetBundle(url, 1, crc))
+#if UNITY_2018_1_OR_NEWER
+                using (UnityWebRequest www = UnityWebRequestAssetBundle.GetAssetBundle(url, crc))
+#else
+                using (UnityWebRequest www = UnityWebRequest.GetAssetBundle(url, crc))
+#endif
                 {
                     www.SendWebRequest();
 
@@ -481,10 +492,11 @@ namespace KM2
                     // ロードしたAssetBundleをセット
                     AssetBundle bundle = DownloadHandlerAssetBundle.GetContent(www);
 
+                    var ex = extentionEvent(bundle);
                     // wwwを解放する
                     www.Dispose();
                 }
-            } while (++fileIndex < assetBundleNames.Length);
+            }
 
             // 完了通知
             if (handler != null) handler(bytes, bytes, fileIndex, true, null);
@@ -505,7 +517,7 @@ namespace KM2
             assetBundleNames = RemoveAlreadyLoaded(assetBundleNames);
 
             // AssetBundleを全てダウンロードするまで回す
-            do
+            while (++fileIndex < assetBundleNames.Length)
             {
                 // baseURLにAssetBuddle名を付与してURL生成
                 string bundleName = assetBundleNames[fileIndex];
@@ -521,7 +533,11 @@ namespace KM2
                 uint crc = (uint)crcCheck.Current;
 
                 // CRCチェック
-                using (UnityWebRequest www = UnityWebRequestAssetBundle.GetAssetBundle(url, 1, crc))
+#if UNITY_2018_1_OR_NEWER
+                using (UnityWebRequest www = UnityWebRequestAssetBundle.GetAssetBundle(url, crc))
+#else
+                using (UnityWebRequest www = UnityWebRequest.GetAssetBundle(url, crc))
+#endif
                 {
                     // ダウンロード開始
                     www.SendWebRequest();
@@ -543,7 +559,7 @@ namespace KM2
                     // wwwを解放する
                     www.Dispose();
                 }
-            } while (++fileIndex < assetBundleNames.Length);
+            }
 
             // 完了通知
             if (handler != null) handler(bytes, null);
@@ -626,6 +642,6 @@ namespace KM2
         }
     }
 
-    #endregion PRIVATE_METHODS
-    #endregion IMPLEMENTATION_FIELD
+#endregion PRIVATE_METHODS
+#endregion IMPLEMENTATION_FIELD
 }
