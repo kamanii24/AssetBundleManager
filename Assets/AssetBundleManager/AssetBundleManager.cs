@@ -194,7 +194,7 @@ namespace KM2
                 if (ab.name == bundleName) { return ab.LoadAsset<T>(assetName); }
             }
 
-            Debug.LogError("Could not load " + assetName + ". because " + bundleName + " has not loaded.");
+            Debug.Log("Could not load " + assetName + ". because " + bundleName + " has not loaded.");
             return default(T);
         }
 
@@ -290,7 +290,7 @@ namespace KM2
             {
                 if (bundleName == bundle.name) { return bundle.Contains(assetName); }
             }
-            Debug.LogError("Could not load " + assetName + ". because " + bundleName + " has not loaded.");
+            Debug.Log("Could not load " + assetName + ". because " + bundleName + " has not loaded.");
             return false;
         }
 
@@ -379,7 +379,7 @@ namespace KM2
             // ロードする
             List<AssetBundle> abList = new List<AssetBundle>();
             int index = 0;
-            while (++index < assetBundleNames.Length)
+            while (index < assetBundleNames.Length)
             {
                 // baseURLにAssetBuddle名を付与してURL生成
                 string bundleName = assetBundleNames[index];
@@ -410,13 +410,14 @@ namespace KM2
 
                     abList.Add(bundle);
                 }
+                index++;    // Index更新
             }
 
             if (handler != null) handler(abList.ToArray(), null);
         }
 
-        public delegate AssetBundle Extention(AssetBundle assetBundle);
-        public static Extention extentionEvent;
+
+    
 
         // 非同期でAssetを取得する
         private static IEnumerator AsyncLoadAsset<T>(AssetBundle bundle, string assetName, AsyncAssetLoaded<T> handler) where T : Object
@@ -437,14 +438,13 @@ namespace KM2
         {
             int fileIndex = 0;
             ulong bytes = 0;
-
+            
             while (!Caching.ready) { yield return null; }
 
             // ロード済みのAssetBundleは配列から除外する
             assetBundleNames = RemoveAlreadyLoaded(assetBundleNames);
-
             // AssetBundleを全てダウンロードするまで回す
-            while (++fileIndex < assetBundleNames.Length)
+            while (fileIndex < assetBundleNames.Length)
             {
                 // baseURLにAssetBuddle名を付与してURL生成
                 string bundleName = assetBundleNames[fileIndex];
@@ -460,9 +460,9 @@ namespace KM2
 
                 // ダウンロード開始
 #if UNITY_2018_1_OR_NEWER
-                using (UnityWebRequest www = UnityWebRequestAssetBundle.GetAssetBundle(url, crc))
+                using (UnityWebRequest www = UnityWebRequestAssetBundle.GetAssetBundle(url, 1, crc))
 #else
-                using (UnityWebRequest www = UnityWebRequest.GetAssetBundle(url, crc))
+                using (UnityWebRequest www = UnityWebRequest.GetAssetBundle(url, 1, crc))
 #endif
                 {
                     www.SendWebRequest();
@@ -492,10 +492,10 @@ namespace KM2
                     // ロードしたAssetBundleをセット
                     AssetBundle bundle = DownloadHandlerAssetBundle.GetContent(www);
 
-                    var ex = extentionEvent(bundle);
                     // wwwを解放する
                     www.Dispose();
                 }
+                fileIndex++;    // Index更新
             }
 
             // 完了通知
@@ -517,7 +517,7 @@ namespace KM2
             assetBundleNames = RemoveAlreadyLoaded(assetBundleNames);
 
             // AssetBundleを全てダウンロードするまで回す
-            while (++fileIndex < assetBundleNames.Length)
+            while (fileIndex < assetBundleNames.Length)
             {
                 // baseURLにAssetBuddle名を付与してURL生成
                 string bundleName = assetBundleNames[fileIndex];
@@ -534,9 +534,9 @@ namespace KM2
 
                 // CRCチェック
 #if UNITY_2018_1_OR_NEWER
-                using (UnityWebRequest www = UnityWebRequestAssetBundle.GetAssetBundle(url, crc))
+                using (UnityWebRequest www = UnityWebRequestAssetBundle.GetAssetBundle(url, 1, crc))
 #else
-                using (UnityWebRequest www = UnityWebRequest.GetAssetBundle(url, crc))
+                using (UnityWebRequest www = UnityWebRequest.GetAssetBundle(url, 1, crc))
 #endif
                 {
                     // ダウンロード開始
@@ -559,6 +559,7 @@ namespace KM2
                     // wwwを解放する
                     www.Dispose();
                 }
+                fileIndex++;    // Index更新
             }
 
             // 完了通知
@@ -572,7 +573,7 @@ namespace KM2
         private static IEnumerator GetCRC(string bundleName)
         {
             // manifestURL生成
-            string manifestURL = AssetBundleManager.AssetBundleDirectoryURL + bundleName + ".manifest";
+            string manifestURL = baseURL + bundleName + ".manifest";
             manifestURL = SetTimestamp(manifestURL);    // timestamp付与
 
             // manifestファイルをダウンロード
