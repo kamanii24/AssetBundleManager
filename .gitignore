@@ -4,6 +4,7 @@
 /[Bb]uild/
 /[Bb]uilds/
 /AssetBundles/
+/Assets/StreamingAssets/
 /UnityPackageManager/
 /Assets/AssetStoreTools*
 /.vscode/

@@ -98,7 +98,19 @@ namespace KM2
         public static void DownloadAssetBundle(string[] assetBundleNames, AssetBundleDownloadProgress handler)
         {
             if (!initialized) return;
-            instance.StartCoroutine(Download(assetBundleNames, handler));
+            instance.StartCoroutine(Download(assetBundleNames, true, handler));
+        }
+
+
+
+        /// <summary>
+        /// assetBundleNames で指定したAssetBundleをダウンロードします。
+        /// 第二引数のbool値でダウンロード / キャッシュされたAssetBundleを自動的にメモリへロードを行うか判断します。
+        /// </summary>
+        public static void DownloadAssetBundle(string[] assetBundleNames, bool autoLoadAssetBundle, AssetBundleDownloadProgress handler)
+        {
+            if (!initialized) return;
+            instance.StartCoroutine(Download(assetBundleNames, autoLoadAssetBundle, handler));
         }
 
 
@@ -321,16 +333,29 @@ namespace KM2
 
 
 
+        /// <summary>
+        /// bundleName で指定したAssetBundleを破棄します。
+        /// 指定がない場合は全てのAssetBundleを破棄します。
+        /// </summary>
+        public static void Unload(bool unloadAllLoadedObjects)
+        {
+            if (!initialized) return;
+
+            // 全て破棄する
+            AssetBundle.UnloadAllAssetBundles(unloadAllLoadedObjects);
+        }
+
+
 
         /// <summary>
         /// bundleName で指定したAssetBundleを破棄します。
         /// 指定がない場合は全てのAssetBundleを破棄します。
         /// </summary>
-        public static void Unload(bool unloadAllLoadedObjects, string bundleName = "")
+        public static void Unload(bool unloadAllLoadedObjects, params string[] bundleNames)
         {
             if (!initialized) return;
 
-            if (bundleName != "")
+            foreach (string bundleName in bundleNames)
             {
                 // 指定したAssetBundleだけ破棄する
                 foreach (AssetBundle bundle in AssetBundle.GetAllLoadedAssetBundles())
@@ -342,13 +367,7 @@ namespace KM2
                     }
                 }
             }
-            else
-            {
-                // 全て破棄する
-                AssetBundle.UnloadAllAssetBundles(unloadAllLoadedObjects);
-            }
         }
-
 
 
 
@@ -356,9 +375,9 @@ namespace KM2
         /// bundleName で指定したAssetBundleを破棄します。
         /// 指定がない場合は全てのAssetBundleを破棄します。
         /// </summary>
-        public static void Unload(string bundleName = "")
+        public static void Unload(params string[] bundleNames)
         {
-            Unload(false, bundleName);
+            Unload(false, bundleNames);
         }
 
 
@@ -417,7 +436,7 @@ namespace KM2
         }
 
 
-    
+
 
         // 非同期でAssetを取得する
         private static IEnumerator AsyncLoadAsset<T>(AssetBundle bundle, string assetName, AsyncAssetLoaded<T> handler) where T : Object
@@ -434,11 +453,11 @@ namespace KM2
 
 
         // サーバーからAssetBundleをダウンロードする
-        private static IEnumerator Download(string[] assetBundleNames, AssetBundleDownloadProgress handler)
+        private static IEnumerator Download(string[] assetBundleNames, bool autoLoadAssetBundle, AssetBundleDownloadProgress handler)
         {
             int fileIndex = 0;
             ulong bytes = 0;
-            
+
             while (!Caching.ready) { yield return null; }
 
             // ロード済みのAssetBundleは配列から除外する
@@ -481,18 +500,13 @@ namespace KM2
                     // エラー処理
                     if (!string.IsNullOrEmpty(www.error))
                     {
-                        // 完了通知
                         if (handler != null) handler(0, 0, fileIndex, false, www.error);
-                        string err = www.error;
-                        Debug.Log(www.error);
-                        // wwwを解放する
                         www.Dispose();
-                        throw new System.Exception("WWW download had an error:" + err);
+                        throw new System.Exception("WWW download had an error:" + www.error);
                     }
-                    // ロードしたAssetBundleをセット
-                    AssetBundle bundle = DownloadHandlerAssetBundle.GetContent(www);
 
-                    // wwwを解放する
+                    if (autoLoadAssetBundle) { DownloadHandlerAssetBundle.GetContent(www); }
+
                     www.Dispose();
                 }
                 fileIndex++;    // Index更新
@@ -541,7 +555,6 @@ namespace KM2
                 {
                     // ダウンロード開始
                     www.SendWebRequest();
-                    bool isExist = true;
                     // ダウンロードが完了するまでプログレスを更新する
                     while (www.downloadProgress < 1f)
                     {
@@ -550,13 +563,11 @@ namespace KM2
                         {
                             if (len > 0)
                             {
-                                isExist = false;
                                 bytes += len;
                                 break;
                             }
                         }
                     }
-                    // wwwを解放する
                     www.Dispose();
                 }
                 fileIndex++;    // Index更新
@@ -643,6 +654,6 @@ namespace KM2
         }
     }
 
-#endregion PRIVATE_METHODS
-#endregion IMPLEMENTATION_FIELD
+    #endregion PRIVATE_METHODS
+    #endregion IMPLEMENTATION_FIELD
 }

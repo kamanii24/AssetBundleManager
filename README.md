@@ -1,8 +1,14 @@
 # AssetBundleManager
 
+# ![Imgur](https://i.imgur.com/GD4U1oj.gif)
 
-AssetBundleを使用するために必要な処理をシンプルに実装したスクリプトです。
-![Imgur](https://i.imgur.com/GD4U1oj.gif)
+## コンセプト
+
+AssetBundleManagerは初めてAssetBundleを扱い人に向けて、とにかくシンプルに手間をかけず導入できるものとして開発しました。
+
+スクリプト本体のコードも見通しをよくし、各々のユースケースに合わせたカスタマイズの余地も残しておりますので、じゃんじゃんForkして弄ってください。
+
+
 
 ## 初期設定
 AssetBundleManagerを使用するクラスに using を追加します。
@@ -28,15 +34,17 @@ AssetBundleManagerを使用するクラスに using を追加します。
     private void Start()
     {
         string[] downloadAssetBundles = { bundle_1, bundle_2, bundle_3 };
-        AssetBundleManager.DownloadAssetBundle(downloadAssetBundles, Downloading);
+        
+        // 第二引数のbool値がtrueの場合、AssetBundleダウンロード後に自動的にメモリへ読み込ませます。
+        AssetBundleManager.DownloadAssetBundle(downloadAssetBundles, true, Downloading);
     }
-
+    
     // ダウンロード更新
     private void Downloading(ulong downloadedBytes, ulong totalBytes, int fileIndex, bool isComplete, string error)
     {
         // ダウンロードBytesサイズ更新
         print(downloadedBytes + " bytes / "+ totalBytes + "bytes");
-
+    
         // ダウンロード完了
         if (isComplete)
         {
@@ -113,4 +121,4 @@ AssetBundle名を指定して個別に破棄することも可能です。
 
 # ビルド環境
 Unity 2018.2.11f1  
-macOS Mojave 10.14
+macOS Mojave 10.14.2
