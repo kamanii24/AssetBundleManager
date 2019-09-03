@@ -17,10 +17,14 @@ public class SceneScript : MonoBehaviour
 {
     // AssetBundleのベースURL
     public string remoteLoadURL = "http://localhost/";
+    public string localLoadPath = "";
+    // ローカル(StreamingAssets)のAssetBundleをロードするかどうか
+    public bool isLocal = true;
     // ダウンロード対象のアセットバンドル
     public string[] downloadAssetBundles = { "cube", "sphere" };
-    // キャッシュを削除するかどうか
-    [Space()] public bool clearAssetBundlesInCache= false;
+    
+    [Space()] public bool clearAssetBundlesInCache= false;  // キャッシュを削除するかどうか
+    public bool autoLoadAssetBundle = true; // AssetBundleダウンロード時、自動的にメモリへ読み込むかどうか
 
     private GameObject assetContainer = null;
     private string output = "";
@@ -30,10 +34,18 @@ public class SceneScript : MonoBehaviour
     {
         if (clearAssetBundlesInCache) Caching.ClearCache();
 
-
+        string baseUrl;
+        if(isLocal)
+        {
+            baseUrl = "file://" + Application.streamingAssetsPath +"/"+ localLoadPath;
+        }
+        else
+        {
+            baseUrl = remoteLoadURL;
+        }
+        
         // AssetBundleManager初期化
-        AssetBundleManager.Initialize(remoteLoadURL);
-
+        AssetBundleManager.Initialize(baseUrl);
 
         // ダウンロード対象のAssetBundleのファイルサイズ
         #region ASSETBUNDLES_FILESIZE
@@ -51,7 +63,7 @@ public class SceneScript : MonoBehaviour
         if (GUILayout.Button("Download AssetBundles", GUILayout.MinWidth(256)))
         {
             // ダウンロード開始
-            AssetBundleManager.DownloadAssetBundle(downloadAssetBundles, Downloading);
+            AssetBundleManager.DownloadAssetBundle(downloadAssetBundles, autoLoadAssetBundle, Downloading);
         }
         #endregion DOWNLOAD_ASSETBUNDLES
 
@@ -135,6 +147,5 @@ public class SceneScript : MonoBehaviour
     {
         if(assetContainer != null) Destroy(assetContainer);
         assetContainer = Instantiate(go);
-
     }
 }
