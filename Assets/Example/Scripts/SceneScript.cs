@@ -16,8 +16,8 @@ using KM2;
 public class SceneScript : MonoBehaviour
 {
     // AssetBundleのベースURL
-    public string remoteLoadURL = "http://localhost/";
-    public string localLoadPath = "";
+    public string remoteManifestURL = "http://localhost/";
+    public string localManifestPath = "";
     // ローカル(StreamingAssets)のAssetBundleをロードするかどうか
     public bool isLocal = true;
     // ダウンロード対象のアセットバンドル
@@ -34,26 +34,25 @@ public class SceneScript : MonoBehaviour
     {
         if (clearAssetBundlesInCache) Caching.ClearCache();
 
-        string baseUrl;
+        string manifestURL = "";
         if(isLocal)
         {
-            baseUrl = "file://" + Application.streamingAssetsPath +"/"+ localLoadPath;
+            manifestURL = "file://" + Application.streamingAssetsPath +"/"+ localManifestPath;
         }
         else
         {
-            baseUrl = remoteLoadURL;
+            manifestURL = remoteManifestURL;
         }
         
         // AssetBundleManager初期化
-        AssetBundleManager.Initialize(baseUrl);
-
-        // ダウンロード対象のAssetBundleのファイルサイズ
-        #region ASSETBUNDLES_FILESIZE
-        AssetBundleManager.GetDownloadFileSize(downloadAssetBundles, (ulong b, string e)=>
+        AssetBundleManager.Initialize(remoteManifestURL, (bool isComplete)=>
         {
-            output = "Downloadable AssetBundles file size = " + b + " Bytes.";
+            // ダウンロード対象のAssetBundleのファイルサイズ
+            AssetBundleManager.GetDownloadFileSize(downloadAssetBundles, (ulong b, string e) =>
+            {
+                output = "Downloadable AssetBundles file size = " + b + " Bytes.";
+            });
         });
-        #endregion ASSETBUNDLES_FILESIZE
     }
 
     private void OnGUI()
