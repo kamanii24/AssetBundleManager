@@ -1,14 +1,6 @@
 # AssetBundleManager
 
-# ![Imgur](https://i.imgur.com/GD4U1oj.gif)
-
-## コンセプト
-
-AssetBundleManagerは初めてAssetBundleを扱い人に向けて、とにかくシンプルに手間をかけず導入できるものとして開発しました。
-
-スクリプト本体のコードも見通しをよくし、各々のユースケースに合わせたカスタマイズの余地も残しておりますので、じゃんじゃんForkして弄ってください。
-
-
+![Imgur](https://i.imgur.com/GD4U1oj.gif)
 
 ## 初期設定
 AssetBundleManagerを使用するクラスに using を追加します。
@@ -19,38 +11,6 @@ AssetBundleManagerを使用するクラスに using を追加します。
 
 AssetBundleManagerを使用する前には必ずInitializeメソッドをコールし、初期化を行う必要があります。
 
-<<<<<<< HEAD
-## AssetBundleのダウンロード
-### 関数
-`DownloadAssetBundle(string downloadAssetBundle, AssetBundleDownloadProgress handler);`
-`DownloadAssetBundle(string[] downloadAssetBundles, AssetBundleDownloadProgress handler);`
-### デリゲート
-`AssetBundleDownloadProgress(ulong downloadedBytes, ulong totalBytes, int fileIndex, bool completed, string error);`
-
-**UnityWebRequest** によるGET通信で **AssetBundleManager.Initialize** で指定したリモートディレクトリから **downloadAssetBundles** 指定したAssetBundleをダウンロードします。  
-コールバック引数でダウンロード対象のAssetBundleのファイルサイズを受け取れるので、進捗値をディスプレイすることが可能です(実装は下記参照)。
-
-### 実装
-    private void Start()
-    {
-        string[] downloadAssetBundles = { bundle_1, bundle_2, bundle_3 };
-        
-        // 第二引数のbool値がtrueの場合、AssetBundleダウンロード後に自動的にメモリへ読み込ませます。
-        AssetBundleManager.DownloadAssetBundle(downloadAssetBundles, true, Downloading);
-    }
-    
-    // ダウンロード更新
-    private void Downloading(ulong downloadedBytes, ulong totalBytes, int fileIndex, bool isComplete, string error)
-    {
-        // ダウンロードBytesサイズ更新
-        print(downloadedBytes + " bytes / "+ totalBytes + "bytes");
-    
-        // ダウンロード完了
-        if (isComplete)
-        {
-            print("Donwload completed.");
-        }
-=======
 ### AssetBundleManifestとAssetBundleが同じ階層に存在する場合
 
 Initializeメソッドの引数に、AssetBundleManifest(AssetBundleビルド時に生成されるプラットフォーム名が付いたファイル)のパスを指定します。
@@ -101,7 +61,6 @@ private void Downloading(ulong downloadedBytes, ulong totalBytes, int fileIndex,
     if (isComplete)
     {
         print("Donwload completed.");
->>>>>>> dev
     }
 }
 ```
@@ -118,17 +77,6 @@ private void Downloading(ulong downloadedBytes, ulong totalBytes, int fileIndex,
 **loadAssetBundles** で指定したAssetBundleがキャッシュ内に存在しない場合は、ダウンロードします。
 **DownloadAssetBundle**との違いは、delegateで完了通知だけを受け取ることができるので、ダウンロードのプログレス更新が不要な場合や解放されているAssetBundleを個別にロードする場合に使用されます。
 
-<<<<<<< HEAD
-### 実装
-    private void Start()
-    {
-        string[] loadAssetBundles = { bundle_1, bundle_2, bundle_3 };
-        AssetBundleManager.LoadAssetBundle(loadAssetBundles, Loaded);
-    }
-    
-    // AssetBundleのロード完了
-    private void Loaded(AssetBundle[] assetBundles, string error)
-=======
 ```C#
 private void Start()
 {
@@ -140,7 +88,6 @@ private void Start()
 private void Loaded(AssetBundle[] assetBundles, string error)
 {
     if(error != null)
->>>>>>> dev
     {
         foreach(var ab in assetBundles) print(ab.name + " is loaded.");
     }
@@ -201,10 +148,5 @@ AssetBundleManager.Unload(true, bundleName);
 
 
 # ビルド環境
-<<<<<<< HEAD
-Unity 2018.2.11f1  
-macOS Mojave 10.14.2
-=======
 Unity 2018.4.8f1
 macOS Mojave 10.14.6
->>>>>>> dev
