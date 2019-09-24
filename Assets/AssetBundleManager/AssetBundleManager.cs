@@ -5,6 +5,7 @@
 //
 // =================================
 
+using System.Linq;
 using System.IO;
 using System.Collections;
 using System.Collections.Generic;
@@ -24,8 +25,8 @@ namespace KM2
         public delegate void AssetBundleDownloadFileSize(ulong totalBytes, string error);
 
         private static AssetBundleManager instance;
-        private static bool initialized = false;
         private static string baseURL = string.Empty;
+        private static AssetBundleManifest manifest = null;
 
 
         /// <summary>
@@ -35,11 +36,12 @@ namespace KM2
         {
             get
             {
-                if (!initialized)
+                if (manifest == null)
                 {
-                    if (baseURL == string.Empty) Debug.LogWarning("AssetBundleManager has not been Initialized.");
+                    Debug.LogWarning("AssetBundleManager has not been Initialized.");
+                    return false;
                 }
-                return initialized;
+                return true;
             }
         }
 
@@ -51,6 +53,16 @@ namespace KM2
         {
             get { return baseURL; }
             set { baseURL = value; }
+        }
+
+
+        /// <summary>
+        /// AssetBundleManifest
+        /// </summary>
+        public static AssetBundleManifest Manifest
+        {
+            get { return manifest; }
+            set { manifest = value; }
         }
 
         #endregion DEFINITION_FIELD
@@ -70,9 +82,9 @@ namespace KM2
         /// AssetBundleManagerの初期設定をします。
         /// ダウンロード先のディレクトリパスを設定します
         /// </summary>
-        public static void Initialize(string assetBundleDirectoryURL)
+        public static void Initialize(string manifestURL, string assetBundleDirectoryURL, System.Action<bool> complete)
         {
-            if (initialized)
+            if (Initialized)
             {
                 Debug.Log("Has initialized.");
                 return;
@@ -83,10 +95,51 @@ namespace KM2
             DontDestroyOnLoad(go);
             instance = go.GetComponent<AssetBundleManager>();
 
-            // 初期化済み
-            initialized = true;
+            if (assetBundleDirectoryURL == "")
+            {
+                List<string> spl = new List<string>(manifestURL.Split(new string[] { "/" }, System.StringSplitOptions.None));
+                spl.Remove(spl.LastOrDefault());
+                assetBundleDirectoryURL = string.Join("/", spl) + "/";
+            }
+
             // URLとバージョンをセット
             AssetBundleDirectoryURL = assetBundleDirectoryURL;
+            instance.StartCoroutine(GetAssetBundleManifest(manifestURL, complete));
+        }
+
+        /// <summary>
+        /// AssetBundleManagerの初期設定をします。
+        /// ダウンロード先のディレクトリパスを設定します
+        /// </summary>
+        public static void Initialize(string manifestURL, System.Action<bool> complete)
+        {
+            Initialize(manifestURL, "", complete);
+        }
+
+        private static IEnumerator GetAssetBundleManifest(string manifestURL, System.Action<bool> complete)
+        {
+#if UNITY_2018_1_OR_NEWER
+            using (UnityWebRequest www = UnityWebRequestAssetBundle.GetAssetBundle(manifestURL))
+#else
+            using (UnityWebRequest www = UnityWebRequest.GetAssetBundle(manifestURL))
+#endif
+            {
+                // ダウンロードを待つ
+                yield return www.SendWebRequest();
+
+                // エラー処理
+                if (www.error != null)
+                {
+                    www.Dispose();
+                    complete(false);
+                    throw new System.Exception("error : " + www.error);
+                }
+                AssetBundle bundle = DownloadHandlerAssetBundle.GetContent(www);
+                manifest = bundle.LoadAsset<AssetBundleManifest>("AssetBundleManifest");
+                bundle.Unload(false);
+            }
+
+            complete(true);
         }
 
 
@@ -97,7 +150,7 @@ namespace KM2
         /// </summary>
         public static void DownloadAssetBundle(string[] assetBundleNames, AssetBundleDownloadProgress handler)
         {
-            if (!initialized) return;
+            if (!Initialized) return;
             instance.StartCoroutine(Download(assetBundleNames, true, handler));
         }
 
@@ -109,7 +162,7 @@ namespace KM2
         /// </summary>
         public static void DownloadAssetBundle(string[] assetBundleNames, bool autoLoadAssetBundle, AssetBundleDownloadProgress handler)
         {
-            if (!initialized) return;
+            if (!Initialized) return;
             instance.StartCoroutine(Download(assetBundleNames, autoLoadAssetBundle, handler));
         }
 
@@ -133,7 +186,7 @@ namespace KM2
         /// </summary>
         public static void LoadAssetBundle(string[] assetBundleNames, AssetBundleLoaded handler)
         {
-            if (!initialized) return;
+            if (!Initialized) return;
             instance.StartCoroutine(Load(assetBundleNames, handler));
         }
 
@@ -199,7 +252,7 @@ namespace KM2
         /// </summary>
         public static T GetAsset<T>(string bundleName, string assetName) where T : Object
         {
-            if (!initialized) return default(T);
+            if (!Initialized) return default(T);
 
             foreach (AssetBundle ab in AssetBundle.GetAllLoadedAssetBundles())
             {
@@ -218,7 +271,7 @@ namespace KM2
         /// </summary>
         public static Object GetAsset(string bundleName, string assetName)
         {
-            if (!initialized) return null;
+            if (!Initialized) return null;
             return GetAsset<Object>(bundleName, assetName);
         }
 
@@ -230,7 +283,7 @@ namespace KM2
         /// </summary>
         public static void GetAssetAsync<T>(string bundleName, string assetName, AsyncAssetLoaded<T> handler) where T : Object
         {
-            if (!initialized) return;
+            if (!Initialized) return;
 
             foreach (AssetBundle bundle in AssetBundle.GetAllLoadedAssetBundles())
             {
@@ -278,7 +331,7 @@ namespace KM2
         /// </summary>
         public static string[] GetAllLoadedAssetBundleNames()
         {
-            if (!initialized) return null;
+            if (!Initialized) return null;
 
             List<string> nameList = new List<string>();
             foreach (AssetBundle ab in AssetBundle.GetAllLoadedAssetBundles())
@@ -296,7 +349,7 @@ namespace KM2
         /// </summary>
         public static bool Contains(string bundleName, string assetName)
         {
-            if (!initialized) return false;
+            if (!Initialized) return false;
 
             foreach (AssetBundle bundle in AssetBundle.GetAllLoadedAssetBundles())
             {
@@ -339,7 +392,7 @@ namespace KM2
         /// </summary>
         public static void Unload(bool unloadAllLoadedObjects)
         {
-            if (!initialized) return;
+            if (!Initialized) return;
 
             // 全て破棄する
             AssetBundle.UnloadAllAssetBundles(unloadAllLoadedObjects);
@@ -353,7 +406,7 @@ namespace KM2
         /// </summary>
         public static void Unload(bool unloadAllLoadedObjects, params string[] bundleNames)
         {
-            if (!initialized) return;
+            if (!Initialized) return;
 
             foreach (string bundleName in bundleNames)
             {
@@ -472,16 +525,14 @@ namespace KM2
                 // URLキャッシュ防止のためタイムスタンプを付与
                 url = SetTimestamp(url);
 
-                // CRC取得
-                IEnumerator crcCheck = GetCRC(bundleName);
-                yield return instance.StartCoroutine(crcCheck);
-                uint crc = (uint)crcCheck.Current;
+                // Get assetbundle hash code.
+                var hash = manifest.GetAssetBundleHash(bundleName);
 
                 // ダウンロード開始
 #if UNITY_2018_1_OR_NEWER
-                using (UnityWebRequest www = UnityWebRequestAssetBundle.GetAssetBundle(url, 1, crc))
+                using (UnityWebRequest www = UnityWebRequestAssetBundle.GetAssetBundle(url, hash, 0))
 #else
-                using (UnityWebRequest www = UnityWebRequest.GetAssetBundle(url, 1, crc))
+                using (UnityWebRequest www = UnityWebRequest.GetAssetBundle(url, hash, 0))
 #endif
                 {
                     www.SendWebRequest();
@@ -536,21 +587,18 @@ namespace KM2
                 // baseURLにAssetBuddle名を付与してURL生成
                 string bundleName = assetBundleNames[fileIndex];
                 string url = AssetBundleManager.AssetBundleDirectoryURL + bundleName;
-                string manifestURL = url + ".manifest";
 
                 // URLキャッシュ防止のためタイムスタンプを付与
                 url = SetTimestamp(url);
 
-                // CRC取得
-                IEnumerator crcCheck = GetCRC(bundleName);
-                yield return instance.StartCoroutine(crcCheck);
-                uint crc = (uint)crcCheck.Current;
+                // Get assetbundle hash code.
+                var hash = manifest.GetAssetBundleHash(bundleName);
 
                 // CRCチェック
 #if UNITY_2018_1_OR_NEWER
-                using (UnityWebRequest www = UnityWebRequestAssetBundle.GetAssetBundle(url, 1, crc))
+                using (UnityWebRequest www = UnityWebRequestAssetBundle.GetAssetBundle(url, hash, 0))
 #else
-                using (UnityWebRequest www = UnityWebRequest.GetAssetBundle(url, 1, crc))
+                using (UnityWebRequest www = UnityWebRequest.GetAssetBundle(url, hash, 0))
 #endif
                 {
                     // ダウンロード開始
@@ -576,61 +624,8 @@ namespace KM2
             // 完了通知
             if (handler != null) handler(bytes, null);
         }
-
-
-
-
-        // CRCを取得する
-        private static IEnumerator GetCRC(string bundleName)
-        {
-            // manifestURL生成
-            string manifestURL = baseURL + bundleName + ".manifest";
-            manifestURL = SetTimestamp(manifestURL);    // timestamp付与
-
-            // manifestファイルをダウンロード
-            UnityWebRequest wwwManifest = UnityWebRequest.Get(manifestURL);
-            yield return wwwManifest.SendWebRequest();
-
-            // CRCチェック
-            uint latestCRC = 0;
-            if (string.IsNullOrEmpty(wwwManifest.error))
-            {
-                // manifest内部のCRCコードを抽出する
-                string[] lines = wwwManifest.downloadHandler.text.Split(new string[] { "CRC: " }, System.StringSplitOptions.None);
-                latestCRC = uint.Parse(lines[1].Split(new string[] { "\n" }, System.StringSplitOptions.None)[0]);
-
-                // ローカル保存されているCRCと照合
-                string key = "km_assetbundleversioncache_" + bundleName;
-                if (PlayerPrefs.HasKey(key))
-                {
-                    string currentCRC = PlayerPrefs.GetString(key);
-                    if (currentCRC != latestCRC.ToString())
-                    {
-                        PlayerPrefs.SetString(key, latestCRC.ToString()); // 新しいcrcを保存
-
-                        string[] sp = bundleName.Split('/');
-                        string abName = sp[sp.Length - 1];
-
-                        Caching.ClearAllCachedVersions(abName); // 既存のキャッシュを削除
-                    }
-                }
-                else
-                {
-                    PlayerPrefs.SetString(key, latestCRC.ToString()); // 新しいcrcを保存
-                }
-                latestCRC = 0;
-            }
-            else
-            {
-                Debug.Log(bundleName + ".manifest has not found.");
-            }
-
-            // CRCを戻す
-            yield return latestCRC;
-        }
-
-
-
+        
+        
 
         // ロード済みのAssetBundleを文字入れて受から取り除く
         private static string[] RemoveAlreadyLoaded(string[] abNames)
